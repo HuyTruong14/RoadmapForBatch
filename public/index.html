@@ -248,6 +248,28 @@
       to { opacity: 1; transform: scale(1.15); }
     }
 
+    /* LAST EDIT AUDIT PILL */
+    .last-edit-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 11px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 500;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+    .last-edit-pill:hover {
+      background: var(--surface);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
     /* BUTTONS */
     .btn {
       display: inline-flex;
@@ -1099,12 +1121,18 @@
         </div>
       </div>
 
-      <!-- Header Action Buttons (Left to Right: Cloud Status, Settings, Builder, Edit Source, Copy, Share, Export) -->
+      <!-- Header Action Buttons (Left to Right: Cloud Status, Last Edit, Refresh, Settings, Builder, Edit Source, Copy, Share, Export) -->
       <div class="header-actions">
         <!-- Real-time Cloud Sync Badge & Refresh -->
         <div id="cloud-status-badge" class="cloud-status synced" title="Real-time Team Cloud Sync (Firebase)">
           <span class="cloud-dot"></span>
           <span id="cloud-status-text">Cloud Synced</span>
+        </div>
+
+        <!-- Last Modified By & Time Pill -->
+        <div id="last-edit-badge" class="last-edit-pill" title="Click to view modification details">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <span id="last-edit-text">Đang tải lịch sử...</span>
         </div>
 
         <button id="btn-cloud-refresh" class="btn btn-icon" title="Force refresh latest data from Cloud">
@@ -1277,10 +1305,47 @@
           <label for="cfg-today-override">Today Override (0 = auto-detect)</label>
           <input type="number" id="cfg-today-override" min="0" max="31">
         </div>
+        <div class="form-group">
+          <label for="cfg-author-name">Tên hiển thị của bạn (Your Name / Editor)</label>
+          <input type="text" id="cfg-author-name" placeholder="Ví dụ: Huy, Felix, QA Lead...">
+          <small style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 4px;">Tên này sẽ hiển thị cho đồng nghiệp biết ai là người vừa chỉnh sửa roadmap.</small>
+        </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-close-modal">Cancel</button>
         <button id="btn-save-settings" class="btn btn-primary">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: LAST EDIT AUDIT DETAIL -->
+  <div class="modal-overlay" id="modal-history">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2>Lịch sử chỉnh sửa gần nhất</h2>
+        <button class="btn btn-icon btn-close-modal">✕</button>
+      </div>
+      <div class="modal-body" style="font-size: 13px; line-height: 1.8;">
+        <div style="background: var(--surface-alt); padding: 16px; border-radius: 8px; border: 1px solid var(--border);">
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom: 1px solid var(--border); padding-bottom: 6px;">
+            <span style="color:var(--text-muted);">Người chỉnh sửa:</span>
+            <strong id="audit-author" style="color:var(--accent); font-size: 14px;">-</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom: 1px solid var(--border); padding-bottom: 6px;">
+            <span style="color:var(--text-muted);">Thời gian:</span>
+            <span id="audit-time" style="font-weight:600;">-</span>
+          </div>
+          <div style="display:flex; justify-content:space-between;">
+            <span style="color:var(--text-muted);">Thao tác:</span>
+            <span id="audit-action" style="font-weight:600; color: var(--text);">-</span>
+          </div>
+        </div>
+        <p style="margin-top:14px; font-size:12px; color:var(--text-muted);">
+          Mọi thay đổi trên Builder, Edit Source hay Settings đều được tự động lưu kèm tên tác giả và thời gian thực qua máy chủ Firebase.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary btn-close-modal">Đóng</button>
       </div>
     </div>
   </div>
@@ -1918,6 +1983,9 @@ Note:
         document.getElementById('cfg-start-day').value = config.startDay;
         document.getElementById('cfg-end-day').value = config.endDay;
         document.getElementById('cfg-today-override').value = config.todayOverride;
+        var myName = localStorage.getItem('roadmap_author_name') || 'Huy';
+        var authorInput = document.getElementById('cfg-author-name');
+        if (authorInput) authorInput.value = myName;
       }
 
       // 13. VISUAL BUILDER (FORM-BASED UI)
@@ -2135,6 +2203,33 @@ Note:
           txt.textContent = text;
         }
 
+        var lastAuditData = null;
+
+        function getMyAuthorName() {
+          return localStorage.getItem('roadmap_author_name') || 'Huy';
+        }
+
+        function updateAuditUI(val) {
+          if (!val) return;
+          lastAuditData = val;
+          var who = val.updatedBy || 'Team';
+          var updatedAt = val.updatedAt || Date.now();
+          var date = new Date(updatedAt);
+
+          var diffSec = Math.floor((Date.now() - updatedAt) / 1000);
+          var timeAgo = '';
+          if (diffSec < 60) timeAgo = 'vừa xong';
+          else if (diffSec < 3600) timeAgo = Math.floor(diffSec / 60) + ' phút trước';
+          else if (diffSec < 86400) timeAgo = Math.floor(diffSec / 3600) + ' giờ trước';
+          else timeAgo = date.toLocaleDateString('vi-VN');
+
+          var timeStr = ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2);
+          var badgeText = document.getElementById('last-edit-text');
+          if (badgeText) {
+            badgeText.textContent = who + ' • ' + timeAgo + ' (' + timeStr + ')';
+          }
+        }
+
         function initFirebaseSync() {
           if (typeof firebase === 'undefined') {
             console.warn('Firebase SDK not available, running in local-first mode');
@@ -2159,6 +2254,8 @@ Note:
                 return;
               }
 
+              updateAuditUI(val);
+
               if (val.updatedAt && val.updatedAt !== lastRemoteUpdateTs) {
                 lastRemoteUpdateTs = val.updatedAt;
 
@@ -2177,7 +2274,7 @@ Note:
                 if (changed) {
                   parsedData = parseTimeline(rawText);
                   render();
-                  showToast('⚡ Real-time roadmap synced from team!');
+                  showToast('⚡ Roadmap vừa được cập nhật bởi ' + (val.updatedBy || 'đồng nghiệp') + '!');
                 }
               }
 
@@ -2197,13 +2294,19 @@ Note:
           setCloudStatus('syncing', 'Syncing...');
           var now = Date.now();
           lastRemoteUpdateTs = now;
+          var myName = getMyAuthorName();
 
-          roadmapRef.set({
+          var payload = {
             config: config,
             rawText: rawText,
             updatedAt: now,
-            updatedBy: action || 'Team Update'
-          }).then(function () {
+            updatedBy: myName,
+            action: action || 'Chỉnh sửa Roadmap'
+          };
+
+          updateAuditUI(payload);
+
+          roadmapRef.set(payload).then(function () {
             setCloudStatus('synced', 'Cloud Synced');
           }).catch(function (err) {
             console.warn('Firebase sync push error:', err);
@@ -2454,12 +2557,34 @@ Note:
           config.endDay = parseInt(document.getElementById('cfg-end-day').value, 10) || DEFAULT_CONFIG.endDay;
           config.todayOverride = parseInt(document.getElementById('cfg-today-override').value, 10) || 0;
 
+          var authorInput = document.getElementById('cfg-author-name');
+          if (authorInput && authorInput.value.trim()) {
+            localStorage.setItem('roadmap_author_name', authorInput.value.trim());
+          }
+
           saveConfig(config);
           parsedData = parseTimeline(rawText);
           render();
           closeModals();
           showToast('Settings saved successfully!');
-          if (window.syncToFirebase) window.syncToFirebase('Settings Updated');
+          if (window.syncToFirebase) window.syncToFirebase('Cập nhật Settings');
+        });
+
+        // View Last Edit Details Modal
+        document.getElementById('last-edit-badge').addEventListener('click', function () {
+          if (lastAuditData) {
+            var date = new Date(lastAuditData.updatedAt || Date.now());
+            var timeStr = ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2) + ':' + ('0' + date.getSeconds()).slice(-2);
+            var dateStr = ('0' + date.getDate()).slice(-2) + '/' + ('0' + (date.getMonth() + 1)).slice(-2) + '/' + date.getFullYear();
+            document.getElementById('audit-author').textContent = lastAuditData.updatedBy || 'Chưa rõ';
+            document.getElementById('audit-time').textContent = timeStr + ' ngày ' + dateStr;
+            document.getElementById('audit-action').textContent = lastAuditData.action || 'Chỉnh sửa timeline';
+          } else {
+            document.getElementById('audit-author').textContent = 'Chưa có thông tin';
+            document.getElementById('audit-time').textContent = '-';
+            document.getElementById('audit-action').textContent = '-';
+          }
+          openModal('modal-history');
         });
 
         // Load Sample Data in Source Modal
