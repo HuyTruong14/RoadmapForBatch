@@ -10,6 +10,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
 
+  <!-- Firebase SDKs for Real-time Team Synchronization -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
   <style>
     /* CSS CUSTOM PROPERTIES (THEME TOKENS) */
     :root {
@@ -203,6 +207,45 @@
       align-items: center;
       gap: 8px;
       flex-wrap: wrap;
+    }
+
+    /* CLOUD STATUS INDICATOR */
+    .cloud-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 11px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+    .cloud-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      transition: all 0.2s;
+    }
+    .cloud-status.synced .cloud-dot {
+      background: var(--success);
+      box-shadow: 0 0 6px rgba(34, 197, 94, 0.6);
+    }
+    .cloud-status.syncing .cloud-dot {
+      background: var(--warning);
+      box-shadow: 0 0 6px rgba(245, 158, 11, 0.6);
+      animation: pulse-dot 1s infinite alternate;
+    }
+    .cloud-status.offline .cloud-dot {
+      background: var(--danger);
+    }
+    @keyframes pulse-dot {
+      from { opacity: 0.4; transform: scale(0.85); }
+      to { opacity: 1; transform: scale(1.15); }
     }
 
     /* BUTTONS */
@@ -1056,8 +1099,18 @@
         </div>
       </div>
 
-      <!-- Header Action Buttons (Left to Right: Settings, Builder, Edit Source, Copy, Export) -->
+      <!-- Header Action Buttons (Left to Right: Cloud Status, Settings, Builder, Edit Source, Copy, Share, Export) -->
       <div class="header-actions">
+        <!-- Real-time Cloud Sync Badge & Refresh -->
+        <div id="cloud-status-badge" class="cloud-status synced" title="Real-time Team Cloud Sync (Firebase)">
+          <span class="cloud-dot"></span>
+          <span id="cloud-status-text">Cloud Synced</span>
+        </div>
+
+        <button id="btn-cloud-refresh" class="btn btn-icon" title="Force refresh latest data from Cloud">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+        </button>
+
         <button id="btn-settings" class="btn" title="Configure dates, month, and title">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
           Settings
@@ -2057,7 +2110,135 @@ Note:
           document.documentElement.setAttribute('data-theme', savedTheme);
         }
 
-        // 14.1 URL-based Share Helpers (UTF-8 Safe)
+        // 14.1 Firebase Real-time Team Sync Integration
+        var firebaseConfig = {
+          apiKey: "AIzaSyAH7dU40LTbOTdhRTe-8cwa5UFgPPVCAn4",
+          authDomain: "fir-realtime-database-62c37.firebaseapp.com",
+          databaseURL: "https://fir-realtime-database-62c37-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "fir-realtime-database-62c37",
+          storageBucket: "fir-realtime-database-62c37.firebasestorage.app",
+          messagingSenderId: "149176921836",
+          appId: "1:149176921836:web:3291358ab73844adc53fc9",
+          measurementId: "G-Q8NXMGGGVZ"
+        };
+
+        var firebaseDb = null;
+        var roadmapRef = null;
+        var lastRemoteUpdateTs = 0;
+
+        function setCloudStatus(status, text) {
+          var badge = document.getElementById('cloud-status-badge');
+          var txt = document.getElementById('cloud-status-text');
+          if (!badge || !txt) return;
+          badge.className = 'cloud-status ' + status;
+          txt.textContent = text;
+        }
+
+        function initFirebaseSync() {
+          if (typeof firebase === 'undefined') {
+            console.warn('Firebase SDK not available, running in local-first mode');
+            setCloudStatus('offline', 'Local Only');
+            return;
+          }
+
+          try {
+            if (!firebase.apps.length) {
+              firebase.initializeApp(firebaseConfig);
+            }
+            firebaseDb = firebase.database();
+            roadmapRef = firebaseDb.ref('roadmap');
+            setCloudStatus('syncing', 'Connecting...');
+
+            // Real-time listener: fires when team member updates roadmap
+            roadmapRef.on('value', function (snapshot) {
+              var val = snapshot.val();
+              if (!val) {
+                // If database is empty, seed it with current local state
+                syncToFirebase('Initial Seed');
+                return;
+              }
+
+              if (val.updatedAt && val.updatedAt !== lastRemoteUpdateTs) {
+                lastRemoteUpdateTs = val.updatedAt;
+
+                var changed = false;
+                if (val.config) {
+                  config = Object.assign({}, DEFAULT_CONFIG, val.config);
+                  saveConfig(config);
+                  changed = true;
+                }
+                if (val.rawText && val.rawText !== rawText) {
+                  rawText = val.rawText;
+                  saveRawText(rawText);
+                  changed = true;
+                }
+
+                if (changed) {
+                  parsedData = parseTimeline(rawText);
+                  render();
+                  showToast('⚡ Real-time roadmap synced from team!');
+                }
+              }
+
+              setCloudStatus('synced', 'Cloud Synced');
+            }, function (error) {
+              console.warn('Firebase sync listener error:', error);
+              setCloudStatus('offline', 'Offline');
+            });
+          } catch (e) {
+            console.error('Firebase initialization error', e);
+            setCloudStatus('offline', 'Local Mode');
+          }
+        }
+
+        window.syncToFirebase = function (action) {
+          if (!roadmapRef) return;
+          setCloudStatus('syncing', 'Syncing...');
+          var now = Date.now();
+          lastRemoteUpdateTs = now;
+
+          roadmapRef.set({
+            config: config,
+            rawText: rawText,
+            updatedAt: now,
+            updatedBy: action || 'Team Update'
+          }).then(function () {
+            setCloudStatus('synced', 'Cloud Synced');
+          }).catch(function (err) {
+            console.warn('Firebase sync push error:', err);
+            setCloudStatus('offline', 'Sync Error');
+          });
+        };
+
+        window.forceRefreshFromCloud = function () {
+          if (!roadmapRef) {
+            showToast('Cloud database not connected');
+            return;
+          }
+          setCloudStatus('syncing', 'Fetching...');
+          roadmapRef.once('value').then(function (snapshot) {
+            var val = snapshot.val();
+            if (val) {
+              if (val.config) {
+                config = Object.assign({}, DEFAULT_CONFIG, val.config);
+                saveConfig(config);
+              }
+              if (val.rawText) {
+                rawText = val.rawText;
+                saveRawText(rawText);
+              }
+              parsedData = parseTimeline(rawText);
+              render();
+              setCloudStatus('synced', 'Cloud Synced');
+              showToast('Fetched latest roadmap from cloud!');
+            }
+          }).catch(function (err) {
+            setCloudStatus('offline', 'Offline');
+            showToast('Could not fetch cloud data');
+          });
+        };
+
+        // 14.2 URL-based Share Helpers (UTF-8 Safe)
         function encodeShareData(data) {
           var jsonStr = JSON.stringify(data);
           var bytes = new TextEncoder().encode(jsonStr);
@@ -2093,6 +2274,8 @@ Note:
                 parsedData = parseTimeline(rawText);
                 render();
                 showToast('Loaded shared roadmap from colleague!');
+                // Also sync this shared roadmap to Firebase
+                if (window.syncToFirebase) window.syncToFirebase('Shared Link Loaded');
                 return true;
               }
             } catch (err) {
@@ -2102,6 +2285,9 @@ Note:
           }
           return false;
         }
+
+        // Initialize Firebase Realtime Sync
+        initFirebaseSync();
 
         // Check if shared roadmap hash exists on load
         var wasSharedLoaded = checkAndLoadSharedHash();
@@ -2250,6 +2436,7 @@ Note:
           render();
           closeModals();
           showToast('Settings saved successfully!');
+          if (window.syncToFirebase) window.syncToFirebase('Settings Updated');
         });
 
         // Load Sample Data in Source Modal
@@ -2266,6 +2453,7 @@ Note:
           render();
           closeModals();
           showToast('Source parsed and rendered!');
+          if (window.syncToFirebase) window.syncToFirebase('Source Updated');
         });
 
         // Builder Actions
@@ -2300,6 +2488,12 @@ Note:
           render();
           closeModals();
           showToast('Builder timeline applied successfully!');
+          if (window.syncToFirebase) window.syncToFirebase('Builder Applied');
+        });
+
+        // Manual Cloud Refresh Button
+        document.getElementById('btn-cloud-refresh').addEventListener('click', function () {
+          if (window.forceRefreshFromCloud) window.forceRefreshFromCloud();
         });
       }
 
