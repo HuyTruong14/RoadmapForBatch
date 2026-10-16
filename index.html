@@ -2379,20 +2379,42 @@ Note:
           });
         });
 
-        // Export Standalone HTML
+        // Export Standalone HTML (Bakes active roadmap and config into exported file)
         document.getElementById('btn-export').addEventListener('click', function () {
           var fullHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+
+          // 1. Replace DEFAULT_CONFIG with the current active config in the exported file
+          var configJson = JSON.stringify(config, null, 2);
+          fullHtml = fullHtml.replace(/var DEFAULT_CONFIG = \{[\s\S]*?\};/, 'var DEFAULT_CONFIG = ' + configJson + ';');
+
+          // 2. Replace SAMPLE_TIMELINE with the current active rawText
+          var safeRawText = rawText.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$');
+          fullHtml = fullHtml.replace(/var SAMPLE_TIMELINE = `[\s\S]*?`;/, 'var SAMPLE_TIMELINE = `' + safeRawText + '`;');
+
+          // 3. Ensure the exported file initializes with the baked-in latest data
+          fullHtml = fullHtml.replace(
+            /var config = loadConfig\(\);[\s\S]*?var rawText = loadRawText\(\);/,
+            'var config = Object.assign({}, DEFAULT_CONFIG);\n      var rawText = SAMPLE_TIMELINE;'
+          );
+
+          // 4. In exported file, reset the shared hash check so it does not load stale hash
+          fullHtml = fullHtml.replace(
+            /var wasSharedLoaded = checkAndLoadSharedHash\(\);/,
+            'var wasSharedLoaded = false;'
+          );
+
           var blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
           var url = URL.createObjectURL(blob);
           var a = document.createElement('a');
           a.href = url;
-          var filename = config.title.toLowerCase().replace(/[^a-z0-9]/g, '_') + '.html';
+          var safeTitle = (config.title || 'roadmap').toLowerCase().replace(/[^a-z0-9]/g, '_');
+          var filename = safeTitle + '_' + config.month + '_' + config.year + '.html';
           a.download = filename;
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
           URL.revokeObjectURL(url);
-          showToast('Roadmap HTML exported successfully!');
+          showToast('✅ Roadmap exported with latest data: ' + filename);
         });
 
         // Modal triggers
