@@ -1078,6 +1078,11 @@
           Copy
         </button>
 
+        <button id="btn-share" class="btn" title="Share live Roadmap link with colleagues">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+          Share Link
+        </button>
+
         <button id="btn-export" class="btn" title="Export standalone HTML file">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
           Export
@@ -2052,9 +2057,62 @@ Note:
           document.documentElement.setAttribute('data-theme', savedTheme);
         }
 
-        // Parse initial data
-        parsedData = parseTimeline(rawText);
-        render();
+        // 14.1 URL-based Share Helpers (UTF-8 Safe)
+        function encodeShareData(data) {
+          var jsonStr = JSON.stringify(data);
+          var bytes = new TextEncoder().encode(jsonStr);
+          var binary = '';
+          for (var i = 0; i < bytes.length; i++) {
+            binary += String.fromCharCode(bytes[i]);
+          }
+          return encodeURIComponent(btoa(binary));
+        }
+
+        function decodeShareData(encodedStr) {
+          var binary = atob(decodeURIComponent(encodedStr));
+          var bytes = new Uint8Array(binary.length);
+          for (var i = 0; i < binary.length; i++) {
+            bytes[i] = binary.charCodeAt(i);
+          }
+          var jsonStr = new TextDecoder().decode(bytes);
+          return JSON.parse(jsonStr);
+        }
+
+        function checkAndLoadSharedHash() {
+          if (window.location.hash && window.location.hash.indexOf('#share=') === 0) {
+            try {
+              var encoded = window.location.hash.substring(7);
+              var shared = decodeShareData(encoded);
+              if (shared && shared.rawText) {
+                if (shared.config) {
+                  config = Object.assign({}, DEFAULT_CONFIG, shared.config);
+                  saveConfig(config);
+                }
+                rawText = shared.rawText;
+                saveRawText(rawText);
+                parsedData = parseTimeline(rawText);
+                render();
+                showToast('Loaded shared roadmap from colleague!');
+                return true;
+              }
+            } catch (err) {
+              console.warn('Failed to parse share hash', err);
+              showToast('Invalid share link format');
+            }
+          }
+          return false;
+        }
+
+        // Check if shared roadmap hash exists on load
+        var wasSharedLoaded = checkAndLoadSharedHash();
+        if (!wasSharedLoaded) {
+          parsedData = parseTimeline(rawText);
+          render();
+        }
+
+        window.addEventListener('hashchange', function () {
+          checkAndLoadSharedHash();
+        });
 
         // Theme Toggle
         document.getElementById('btn-theme-toggle').addEventListener('click', function () {
@@ -2087,6 +2145,31 @@ Note:
           areAllCollapsed = !areAllCollapsed;
           document.getElementById('toggle-all-label').textContent = areAllCollapsed ? 'Expand All' : 'Collapse All';
           renderGantt();
+        });
+
+        // Share Link with Colleagues
+        document.getElementById('btn-share').addEventListener('click', function () {
+          try {
+            var payload = {
+              config: config,
+              rawText: rawText
+            };
+            var encoded = encodeShareData(payload);
+            var shareUrl = window.location.origin + window.location.pathname + '#share=' + encoded;
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              navigator.clipboard.writeText(shareUrl).then(function () {
+                showToast('🔗 Share link copied to clipboard! Send it to your colleague.');
+              }).catch(function () {
+                window.prompt('Copy this link to share with colleagues:', shareUrl);
+              });
+            } else {
+              window.prompt('Copy this link to share with colleagues:', shareUrl);
+            }
+          } catch (e) {
+            console.error('Share generation error', e);
+            showToast('Failed to generate share link');
+          }
         });
 
         // Copy Markdown Summary
