@@ -6,6 +6,19 @@ Works completely client-side in any modern browser without needing a backend ser
 
 ---
 
+## ⚡ 1-Click / Auto Deploy to Vercel
+
+This repository is pre-configured with `vercel.json` and `public/index.html` for instant Vercel deployment:
+
+1. Go to [vercel.com/new](https://vercel.com/new)
+2. Import this repository: **`HuyTruong14/RoadmapForBatch`**
+3. Framework Preset: **Other** (Output Directory: `public` is auto-detected via `vercel.json`)
+4. Click **Deploy**
+
+Every push to the `main` branch will automatically trigger a new deployment with a permanent production URL!
+
+---
+
 ## 🚀 Key Features
 
 ### 1. Gantt Chart Timeline
@@ -44,7 +57,7 @@ Works completely client-side in any modern browser without needing a backend ser
 
 ---
 
-## 💻 Quick Start
+## 💻 Local Quick Start
 
 ### Option 1: Direct File Opening
 Double-click `index.html` or open in any web browser:
@@ -67,8 +80,12 @@ http://localhost:5180
 ## 📁 Repository Structure
 ```
 .
-├── index.html     # Complete single-file application (CSS + HTML + Vanilla JS IIFE)
-└── README.md      # Documentation & quick start guide
+├── public/
+│   └── index.html     ← Production asset served by Vercel
+├── index.html         ← Root standalone copy
+├── package.json       ← Vercel project metadata & serve script
+├── vercel.json        ← Vercel routing & cache headers configuration
+└── README.md          ← Documentation & deployment guide
 ```
 
 ---

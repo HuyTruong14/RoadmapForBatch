@@ -1,0 +1,9 @@
+{
+  "name": "roadmap-tool",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Standalone Roadmap Planner Tool with Gantt timeline, KPI dashboard, and visual builder",
+  "scripts": {
+    "start": "npx serve public"
+  }
+}

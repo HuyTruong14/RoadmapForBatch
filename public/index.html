@@ -1,0 +1,2232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Roadmap Planner Tool</title>
+
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* CSS CUSTOM PROPERTIES (THEME TOKENS) */
+    :root {
+      --bg: #ffffff;
+      --surface: #f8f9fb;
+      --surface-alt: #f0f2f5;
+      --border: #e2e5ea;
+      --text: #1a1c20;
+      --text-secondary: #4a4e58;
+      --text-muted: #8a8f9c;
+      --accent: #4f6ef7;
+      --accent-hover: #3d5ce5;
+      --accent-fg: #ffffff;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+
+      /* Stage Colors (Solid + Semi-transparent BG) */
+      --stage-be: #3b82f6;
+      --stage-be-bg: rgba(59, 130, 246, 0.15);
+      --stage-fe: #6366f1;
+      --stage-fe-bg: rgba(99, 102, 241, 0.15);
+      --stage-plbo: #f59e0b;
+      --stage-plbo-bg: rgba(245, 158, 11, 0.15);
+      --stage-qc: #10b981;
+      --stage-qc-bg: rgba(16, 185, 129, 0.15);
+      --stage-integrate: #06b6d4;
+      --stage-integrate-bg: rgba(6, 182, 212, 0.15);
+      --stage-asset: #ec4899;
+      --stage-asset-bg: rgba(236, 72, 153, 0.15);
+      --stage-milestone: #eab308;
+      --stage-milestone-bg: rgba(234, 179, 8, 0.2);
+
+      --today-line: #ef4444;
+      --rfp-line: #f97316;
+      --guide-stripe: rgba(0, 0, 0, 0.02);
+      --modal-backdrop: rgba(15, 23, 42, 0.6);
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #0f1117;
+        --surface: #1a1d27;
+        --surface-alt: #22252f;
+        --border: #2e3340;
+        --text: #e4e6ef;
+        --text-secondary: #a0a4b0;
+        --text-muted: #6b7084;
+        --accent: #6b8aff;
+        --accent-hover: #5577ff;
+        --accent-fg: #ffffff;
+        --success: #22c55e;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --guide-stripe: rgba(255, 255, 255, 0.015);
+        --modal-backdrop: rgba(0, 0, 0, 0.75);
+      }
+    }
+
+    :root[data-theme="dark"] {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface-alt: #22252f;
+      --border: #2e3340;
+      --text: #e4e6ef;
+      --text-secondary: #a0a4b0;
+      --text-muted: #6b7084;
+      --accent: #6b8aff;
+      --accent-hover: #5577ff;
+      --accent-fg: #ffffff;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --guide-stripe: rgba(255, 255, 255, 0.015);
+      --modal-backdrop: rgba(0, 0, 0, 0.75);
+    }
+
+    :root[data-theme="light"] {
+      --bg: #ffffff;
+      --surface: #f8f9fb;
+      --surface-alt: #f0f2f5;
+      --border: #e2e5ea;
+      --text: #1a1c20;
+      --text-secondary: #4a4e58;
+      --text-muted: #8a8f9c;
+      --accent: #4f6ef7;
+      --accent-hover: #3d5ce5;
+      --accent-fg: #ffffff;
+      --guide-stripe: rgba(0, 0, 0, 0.02);
+      --modal-backdrop: rgba(15, 23, 42, 0.6);
+    }
+
+    /* BASE STYLES */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1, h2, h3, h4, .font-display {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+    }
+
+    /* CUSTOM SCROLLBARS */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--surface);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
+    }
+
+    /* HEADER */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 12px 20px;
+    }
+
+    .header-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), #a855f7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(79, 110, 247, 0.25);
+    }
+
+    .brand-text h1 {
+      font-size: 18px;
+      line-height: 1.2;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-text p {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* BUTTONS */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 7px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--surface-alt);
+      color: var(--text);
+      transition: all 0.15s ease;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      background: var(--border);
+      color: var(--text);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--accent-fg);
+      box-shadow: 0 2px 8px rgba(79, 110, 247, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+      color: var(--accent-fg);
+    }
+
+    .btn-danger {
+      background: transparent;
+      border-color: transparent;
+      color: var(--danger);
+      padding: 4px 8px;
+    }
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+    }
+
+    .btn-icon {
+      padding: 7px;
+      border-radius: 8px;
+    }
+
+    /* KPI DASHBOARD STRIP */
+    .kpi-strip {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+    }
+
+    .kpi-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .kpi-cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 768px) {
+      .kpi-cards {
+        grid-template-columns: repeat(2, 1fr);
+        width: 100%;
+      }
+    }
+
+    .kpi-card {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 140px;
+    }
+
+    .kpi-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .kpi-info .kpi-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+    }
+
+    .kpi-info .kpi-value {
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.1;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    /* TOOLBAR CONTROLS */
+    .toolbar-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .search-box {
+      position: relative;
+      min-width: 200px;
+    }
+
+    .search-box input {
+      width: 100%;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 12px 7px 32px;
+      font-size: 12px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .search-box input:focus {
+      border-color: var(--accent);
+    }
+
+    .search-box svg {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      width: 14px;
+      height: 14px;
+    }
+
+    .filter-tabs {
+      display: inline-flex;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 3px;
+      gap: 2px;
+    }
+
+    .filter-tab {
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .filter-tab.active {
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* MAIN CONTAINER */
+    main {
+      flex: 1;
+      padding: 16px 20px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+    }
+
+    /* LEGEND BAR */
+    .legend-bar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .legend-items {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-badge {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+    }
+
+    /* GANTT CONTAINER */
+    .gantt-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .gantt-scroll {
+      overflow-x: auto;
+      position: relative;
+    }
+
+    .gantt-table {
+      min-width: 1100px;
+      width: 100%;
+      position: relative;
+    }
+
+    /* TIMELINE HEADER ROW */
+    .timeline-header {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-alt);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .col-info-header {
+      width: 380px;
+      flex-shrink: 0;
+      padding: 10px 16px;
+      border-right: 1px solid var(--border);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .col-canvas-header {
+      flex: 1;
+      display: flex;
+      position: relative;
+    }
+
+    .day-col-header {
+      flex: 1;
+      min-width: 50px;
+      text-align: center;
+      padding: 8px 2px;
+      border-right: 1px solid var(--border);
+      position: relative;
+    }
+
+    .day-col-header .day-name {
+      font-size: 10px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .day-col-header .day-num {
+      font-size: 13px;
+      font-weight: 700;
+      font-family: 'Outfit', sans-serif;
+      color: var(--text);
+    }
+
+    .day-col-header.is-today {
+      background: rgba(239, 68, 68, 0.08);
+    }
+    .day-col-header.is-today .day-name {
+      color: var(--danger);
+    }
+    .day-col-header.is-today .day-num {
+      color: var(--danger);
+    }
+
+    /* PROJECT ROWS */
+    .project-group {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    .project-group:hover {
+      background: rgba(0, 0, 0, 0.015);
+    }
+
+    .master-row {
+      display: flex;
+      min-height: 48px;
+      align-items: stretch;
+    }
+
+    .col-info {
+      width: 380px;
+      flex-shrink: 0;
+      padding: 10px 16px;
+      border-right: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: var(--surface);
+      z-index: 10;
+    }
+
+    .proj-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .toggle-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 2px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.15s;
+    }
+    .toggle-btn:hover {
+      color: var(--text);
+      background: var(--surface-alt);
+    }
+
+    .proj-title-box {
+      min-width: 0;
+    }
+
+    .proj-title-box .code {
+      font-family: monospace;
+      font-weight: 700;
+      color: var(--accent);
+      font-size: 11px;
+    }
+
+    .proj-title-box .name {
+      font-weight: 600;
+      font-size: 12px;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .proj-dates {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .status-badge {
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .status-badge.on-track {
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--success);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+    .status-badge.off-track {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .col-canvas {
+      flex: 1;
+      display: flex;
+      position: relative;
+      align-items: center;
+      padding: 6px 0;
+    }
+
+    /* GRID STRIPES */
+    .grid-guides {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      pointer-events: none;
+    }
+
+    .grid-guide-col {
+      flex: 1;
+      min-width: 50px;
+      border-right: 1px solid var(--border);
+    }
+    .grid-guide-col:nth-child(even) {
+      background: var(--guide-stripe);
+    }
+
+    /* GANTT BARS */
+    .gantt-bar {
+      position: absolute;
+      border-radius: 6px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      font-size: 10px;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      transition: filter 0.15s, transform 0.15s;
+      z-index: 10;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    .gantt-bar:hover {
+      filter: brightness(1.15);
+      transform: scaleY(1.08);
+      z-index: 15;
+    }
+
+    .master-summary-bar {
+      position: absolute;
+      height: 12px;
+      border-radius: 6px;
+      background: linear-gradient(90deg, var(--accent), var(--success));
+      opacity: 0.85;
+      z-index: 5;
+    }
+
+    /* SUBTASK ROWS */
+    .subtasks-container {
+      background: var(--surface-alt);
+      border-top: 1px solid var(--border);
+    }
+    .subtasks-container.hidden {
+      display: none;
+    }
+
+    .subtask-row {
+      display: flex;
+      min-height: 36px;
+      align-items: stretch;
+      border-bottom: 1px dashed var(--border);
+    }
+    .subtask-row:last-child {
+      border-bottom: none;
+    }
+
+    .subtask-info {
+      width: 380px;
+      flex-shrink: 0;
+      padding: 6px 16px 6px 42px;
+      border-right: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 11px;
+    }
+
+    .subtask-info .title {
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .stage-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .subtask-info .range {
+      font-family: monospace;
+      color: var(--text-muted);
+      font-size: 10px;
+      flex-shrink: 0;
+    }
+
+    /* VERTICAL LINES: TODAY & RFP */
+    .today-line-overlay {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--today-line);
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
+      pointer-events: none;
+      z-index: 25;
+    }
+
+    .today-pin {
+      position: sticky;
+      top: 48px;
+      left: -18px;
+      background: var(--today-line);
+      color: #fff;
+      font-size: 9px;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 1px 6px;
+      border-radius: 9999px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      width: max-content;
+      transform: translateX(-50%);
+    }
+
+    .rfp-diamond-marker {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background: var(--rfp-line);
+      transform: translateX(-50%) rotate(45deg);
+      border: 2px solid #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      z-index: 12;
+      cursor: pointer;
+    }
+
+    /* NOTES FOOTER */
+    .notes-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .notes-card.hidden {
+      display: none;
+    }
+
+    .notes-card .icon {
+      color: var(--warning);
+      font-size: 16px;
+      margin-top: 2px;
+    }
+
+    /* MODALS */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--modal-backdrop);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      width: 100%;
+      max-width: 640px;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-direction: column;
+      max-height: 90vh;
+      overflow: hidden;
+      transform: scale(0.96);
+      transition: transform 0.2s ease;
+    }
+
+    .modal-overlay.active .modal-panel {
+      transform: scale(1);
+    }
+
+    .modal-panel.modal-wide {
+      max-width: 900px;
+    }
+
+    .modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-header h2 {
+      font-size: 16px;
+      color: var(--text);
+    }
+
+    .modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .modal-footer {
+      padding: 14px 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface-alt);
+    }
+
+    /* FORM STYLES */
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text-secondary);
+    }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .form-row .form-group {
+      flex: 1;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+    }
+
+    textarea.code-area {
+      font-family: 'SFMono-Regular', Consolas, "Liberation Mono", Menlo, Courier, monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      resize: vertical;
+      min-height: 300px;
+    }
+
+    /* BUILDER FORM UI */
+    .builder-projects {
+      max-height: 60vh;
+      overflow-y: auto;
+      padding-right: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .builder-card {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .builder-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .project-badge-num {
+      background: var(--accent);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+
+    .builder-stage-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-left: 20px;
+      border-left: 2px dashed var(--border);
+      margin-left: 12px;
+    }
+
+    .builder-stage-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 10px;
+    }
+
+    .add-stage-link {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 4px;
+      background: none;
+      border: none;
+      padding: 2px 0;
+    }
+    .add-stage-link:hover {
+      text-decoration: underline;
+    }
+
+    .add-project-dashed {
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+      color: var(--text-secondary);
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      background: transparent;
+      transition: all 0.15s;
+    }
+    .add-project-dashed:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(79, 110, 247, 0.05);
+    }
+
+    /* TOAST NOTIFICATION */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: var(--shadow-lg);
+      z-index: 200;
+      opacity: 0;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .toast-container.active {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP STICKY HEADER -->
+  <header>
+    <div class="header-inner">
+      <div class="brand-group">
+        <div class="brand-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+            <path d="M8 14h.01"></path>
+            <path d="M12 14h.01"></path>
+            <path d="M16 14h.01"></path>
+            <path d="M8 18h.01"></path>
+            <path d="M12 18h.01"></path>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1 id="header-title">Roadmap Planner</h1>
+          <p id="header-subtitle">Working-days delivery roadmap & milestone tracker</p>
+        </div>
+      </div>
+
+      <!-- Header Action Buttons (Left to Right: Settings, Builder, Edit Source, Copy, Export) -->
+      <div class="header-actions">
+        <button id="btn-settings" class="btn" title="Configure dates, month, and title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          Settings
+        </button>
+
+        <button id="btn-builder" class="btn btn-primary" title="Open visual form builder">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+          Builder
+        </button>
+
+        <button id="btn-source" class="btn" title="Edit source timeline text">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          Edit Source
+        </button>
+
+        <button id="btn-copy" class="btn" title="Copy Markdown summary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          Copy
+        </button>
+
+        <button id="btn-export" class="btn" title="Export standalone HTML file">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          Export
+        </button>
+
+        <button id="btn-theme-toggle" class="btn btn-icon" title="Toggle Light / Dark Mode">
+          <svg id="theme-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- KPI STRIP & CONTROLS -->
+  <div class="kpi-strip">
+    <div class="kpi-inner">
+      <!-- 4 KPI Cards -->
+      <div class="kpi-cards">
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background: rgba(79, 110, 247, 0.15); color: var(--accent);">📊</div>
+          <div class="kpi-info">
+            <div class="kpi-label">Total Projects</div>
+            <div class="kpi-value" id="kpi-total">0</div>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background: rgba(34, 197, 94, 0.15); color: var(--success);">✅</div>
+          <div class="kpi-info">
+            <div class="kpi-label">On-track</div>
+            <div class="kpi-value" id="kpi-ontrack" style="color: var(--success);">0</div>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background: rgba(239, 68, 68, 0.15); color: var(--danger);">⚠️</div>
+          <div class="kpi-info">
+            <div class="kpi-label">Delayed</div>
+            <div class="kpi-value" id="kpi-delayed" style="color: var(--danger);">0</div>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon" style="background: rgba(245, 158, 11, 0.15); color: var(--warning);">🎯</div>
+          <div class="kpi-info">
+            <div class="kpi-label">Base RFP</div>
+            <div class="kpi-value" id="kpi-rfp" style="color: var(--warning);">-</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search, Filter Tabs & Collapse Toggle -->
+      <div class="toolbar-controls">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="search-input" placeholder="Search project or code...">
+        </div>
+
+        <div class="filter-tabs">
+          <button class="filter-tab active" data-filter="all">All</button>
+          <button class="filter-tab" data-filter="on-track">On-track</button>
+          <button class="filter-tab" data-filter="off-track">Delayed</button>
+        </div>
+
+        <button id="btn-toggle-all" class="btn" title="Collapse or Expand all rows">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7 13 12 18 17 13"></polyline><polyline points="7 6 12 11 17 6"></polyline></svg>
+          <span id="toggle-all-label">Collapse All</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CANVAS -->
+  <main>
+    <!-- Legend Bar -->
+    <div class="legend-bar">
+      <div style="font-weight: 700; color: var(--text);">Stages:</div>
+      <div class="legend-items" id="legend-items">
+        <!-- Injected dynamically -->
+      </div>
+      <div style="font-size: 10px; font-weight: 600; color: var(--text-muted);">Working Days Only (Mon–Fri)</div>
+    </div>
+
+    <!-- Gantt Chart Card -->
+    <div class="gantt-card">
+      <div class="gantt-scroll" id="gantt-scroll">
+        <div class="gantt-table" id="gantt-table">
+          <!-- Injected dynamically by renderGantt() -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Notes Footer -->
+    <div class="notes-card hidden" id="notes-card">
+      <div class="icon">ℹ️</div>
+      <div>
+        <div style="font-weight: 700; margin-bottom: 4px; color: var(--text);">Timeline Scope & Risk Notes:</div>
+        <div id="notes-content" style="line-height: 1.6;"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL 1: SETTINGS -->
+  <div class="modal-overlay" id="modal-settings">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2>Roadmap Settings</h2>
+        <button class="btn btn-icon btn-close-modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="cfg-title">Roadmap Title</label>
+          <input type="text" id="cfg-title">
+        </div>
+        <div class="form-group">
+          <label for="cfg-subtitle">Subtitle</label>
+          <input type="text" id="cfg-subtitle">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cfg-month">Month (1–12)</label>
+            <input type="number" id="cfg-month" min="1" max="12">
+          </div>
+          <div class="form-group">
+            <label for="cfg-year">Year</label>
+            <input type="number" id="cfg-year" min="2020" max="2050">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cfg-start-day">Start Day</label>
+            <input type="number" id="cfg-start-day" min="1" max="31">
+          </div>
+          <div class="form-group">
+            <label for="cfg-end-day">End Day</label>
+            <input type="number" id="cfg-end-day" min="1" max="31">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="cfg-today-override">Today Override (0 = auto-detect)</label>
+          <input type="number" id="cfg-today-override" min="0" max="31">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-close-modal">Cancel</button>
+        <button id="btn-save-settings" class="btn btn-primary">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: EDIT SOURCE (RAW TEXT) -->
+  <div class="modal-overlay" id="modal-source">
+    <div class="modal-panel modal-wide">
+      <div class="modal-header">
+        <h2>Edit Timeline Source Text</h2>
+        <button class="btn btn-icon btn-close-modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <textarea id="raw-source-textarea" class="code-area" placeholder="Paste timeline here..."></textarea>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-load-sample" class="btn">Load Sample Data</button>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-close-modal">Cancel</button>
+          <button id="btn-apply-source" class="btn btn-primary">Parse & Apply</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3: TIMELINE BUILDER (FORM-BASED) -->
+  <div class="modal-overlay" id="modal-builder">
+    <div class="modal-panel modal-wide">
+      <div class="modal-header">
+        <h2>Visual Timeline Builder</h2>
+        <button class="btn btn-icon btn-close-modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+          <div style="font-size: 12px; color: var(--text-muted);">Add projects and their stages visually:</div>
+          <div style="display: flex; gap: 8px;">
+            <button id="btn-builder-import" class="btn" title="Import current timeline data into form">Import Current</button>
+            <button id="btn-builder-clear" class="btn" title="Reset to one blank project">Clear All</button>
+          </div>
+        </div>
+
+        <div class="builder-projects" id="builder-projects-container">
+          <!-- Dynamically generated project cards -->
+        </div>
+
+        <div style="margin-top: 14px;">
+          <div class="add-project-dashed" id="btn-builder-add-proj">
+            + Add New Project Card
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div style="font-size: 12px; font-weight: 600; color: var(--text-muted);" id="builder-proj-count">0 projects</div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-close-modal">Cancel</button>
+          <button id="btn-builder-apply" class="btn btn-primary">Apply Timeline</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div class="toast-container" id="toast">
+    <span>Notification</span>
+  </div>
+
+  <!-- COMPLETE LOGIC (IIFE PATTERN) -->
+  <script>
+    (function () {
+      'use strict';
+
+      // 1. DEFAULT CONFIGURATION
+      var DEFAULT_CONFIG = {
+        title: 'Roadmap Planner',
+        subtitle: 'Working-days delivery roadmap & milestone tracker',
+        month: 10,
+        year: 2026,
+        startDay: 13,
+        endDay: 30,
+        todayOverride: 16
+      };
+
+      // 2. STAGE CONFIGURATION (Colors & Labels)
+      var STAGE_CONFIG = {
+        be:        { name: 'BE',        color: 'var(--stage-be)',        bg: 'var(--stage-be-bg)' },
+        fe:        { name: 'FE',        color: 'var(--stage-fe)',        bg: 'var(--stage-fe-bg)' },
+        plbo:      { name: 'PL / BO',   color: 'var(--stage-plbo)',      bg: 'var(--stage-plbo-bg)' },
+        qc:        { name: 'QC',        color: 'var(--stage-qc)',        bg: 'var(--stage-qc-bg)' },
+        integrate: { name: 'Integrate', color: 'var(--stage-integrate)', bg: 'var(--stage-integrate-bg)' },
+        asset:     { name: 'Asset',     color: 'var(--stage-asset)',     bg: 'var(--stage-asset-bg)' },
+        milestone: { name: 'RFP',       color: 'var(--stage-milestone)', bg: 'var(--stage-milestone-bg)' }
+      };
+
+      // 3. BUILT-IN SAMPLE RAW TIMELINE DATA
+      var SAMPLE_TIMELINE = `Timeline Anime Batch 1
+
+—
+1. 1992 - One Piece Grand Line | RFP: 26.10 | On-track
+- BE (1 day) - ETA: 14.10 
+- FE Full Build (1 day): - ETA: 15.10
+- PL, BO (1 day) - ETA: 16.10
+- QC Testing & Fix Bug (2.5 days): - ETA: 15.10 - 19.10
+
+2. 9910 - Tsubasa | RFP: 26.10 | On-track
+- BE (1 day) - ETA: 14.10
+- FE Full Build (1 day): - ETA: 15.10
+- PL, BO (1 day): ETA: 19.10.
+- QC Testing & Fix Bug BO Tool (3 day): - ETA: 15.10 -  19.10
+
+3. 9939 - Gundam Battle | RFP: 26.10 | On-track
+- BE (1 day) ETA: 14.10
+- FE: (2 days) Full Build: ETA: 16.10
+- PL, BO (1day): ETA 20.10 
+- QC Testing & Fix Bug BO Tool (2 day): - ETA: 19.10 -  20.10
+
+4. 2989 - Taiko Rabbit | RFP: 26.10 | On-track
+- BE (1 day) eta: 14.10.
+- Delivery Sound, Asset: (2 day): ETA: 15 - 16/10
+- FE (2days): Full Build ETA: 16 - 19.10 (Can delay to Morning: 20/10) 
+- PL, BO (1day): ETA 21.10 (1 days)
+- QC Testing & Fix Bug BO Tool (3 day): - ETA: 20.10 -  23.10
+
+5. 9869 - Naruto | RFP: 26.10 | On-track
+- BE (1 day) ETA: 14.10
+- Delivery Sound, Asset: (3 day): ETA: 15 - 19.10
+- FE (1 day): ETA: 20.10
+- PL, BO (1 day) ETA: 22.10
+- QC Testing & Fix Bug BO Tool (4 day): - ETA: 20.10 -  23.10
+
+6. 9897 - Dragon Ball | RFP: 26.10 | On-Track
+- BE (1 day) ETA: 15.10
+- Delivery Asset EN (2 đay): ETA. 16 - 19.10
+- FE (2 days): ETA: 19 - 20.10
+- PL, BO (1 day) ETA: 23.10
+- QC Testing & Fix Bug BO Tool (4 day): - ETA: 21.10 -  26.10
+
+7. 3920 - Rise Of Ronin | RFP: 26.10 | On-Track
+- (Note) BE cần thông tin quy đổi giữa A1&BRL, hiện chưa ai chịu trách nhiệm confirm phần này.
+- (Note) File MC cần 1 Math involve với GD để check phần RTP khi quy đổi.
+- BE (1 day): 19.10 (Cần confirm tỷ lệ quy đổi trước ngày 19.10)
+- Delivery Asset EN (2 đay): ETA. 19.10 - 20.10
+- FE (1 day): ETA: 21.10
+- PL, BO (1 day): ETA: 26.10
+- QC Testing & Fix Bug BO Tool (4.5 day): - ETA: 21.10 -  27.10
+
+Note:
+- Timeline QC chưa bao gồm scope test migration. Nếu có thì phát sinh sẽ + tầm 0.5day - 1day/ 1 con (confirm vào ngày mai 16.10)`;
+
+      // 4. APPLICATION STATE
+      var config = loadConfig();
+      var rawText = loadRawText();
+      var parsedData = { projects: [], notes: [] };
+      var activeFilter = 'all';
+      var searchQuery = '';
+      var areAllCollapsed = false;
+      var builderProjects = [];
+
+      // 5. LOCAL STORAGE UTILITIES (SAFE WRAPPERS)
+      function loadConfig() {
+        try {
+          var saved = localStorage.getItem('roadmap_config');
+          if (saved) return Object.assign({}, DEFAULT_CONFIG, JSON.parse(saved));
+        } catch (e) {
+          console.warn('Failed to load roadmap_config', e);
+        }
+        return Object.assign({}, DEFAULT_CONFIG);
+      }
+
+      function saveConfig(cfg) {
+        try {
+          localStorage.setItem('roadmap_config', JSON.stringify(cfg));
+        } catch (e) {
+          console.warn('Failed to save roadmap_config', e);
+        }
+      }
+
+      function loadRawText() {
+        try {
+          var saved = localStorage.getItem('roadmap_raw_text');
+          if (saved) return saved;
+        } catch (e) {
+          console.warn('Failed to load roadmap_raw_text', e);
+        }
+        return SAMPLE_TIMELINE;
+      }
+
+      function saveRawText(text) {
+        try {
+          localStorage.setItem('roadmap_raw_text', text);
+        } catch (e) {
+          console.warn('Failed to save roadmap_raw_text', e);
+        }
+      }
+
+      // 6. XSS-SAFE ESCAPE FUNCTION
+      function escapeHtml(str) {
+        if (!str && str !== 0) return '';
+        var div = document.createElement('div');
+        div.textContent = String(str);
+        return div.innerHTML;
+      }
+
+      // 7. TOAST NOTIFICATION
+      function showToast(msg) {
+        var toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.classList.add('active');
+        clearTimeout(toast._timeout);
+        toast._timeout = setTimeout(function () {
+          toast.classList.remove('active');
+        }, 2500);
+      }
+
+      // 8. WORKING DAYS COMPUTATION (Mon–Fri only)
+      function computeWorkingDays() {
+        var days = [];
+        var monthIdx = config.month - 1;
+        for (var d = config.startDay; d <= config.endDay; d++) {
+          var dateObj = new Date(config.year, monthIdx, d);
+          var dayOfWeek = dateObj.getDay();
+          if (dayOfWeek !== 0 && dayOfWeek !== 6) { // Skip Sunday (0) and Saturday (6)
+            days.push(d);
+          }
+        }
+        return days;
+      }
+
+      function getDayWorkingIndex(workingDays, day) {
+        if (day <= workingDays[0]) return 0;
+        if (day >= workingDays[workingDays.length - 1]) return workingDays.length - 1;
+        var direct = workingDays.indexOf(day);
+        if (direct !== -1) return direct;
+        for (var i = 0; i < workingDays.length; i++) {
+          if (workingDays[i] >= day) return i;
+        }
+        return workingDays.length - 1;
+      }
+
+      function calcLeft(workingDays, day) {
+        var idx = getDayWorkingIndex(workingDays, day);
+        return (idx / workingDays.length) * 100;
+      }
+
+      function calcWidth(workingDays, startDay, endDay) {
+        var sIdx = getDayWorkingIndex(workingDays, startDay);
+        var eIdx = getDayWorkingIndex(workingDays, endDay);
+        var span = Math.max(1, (eIdx - sIdx) + 1);
+        return Math.max(3, (span / workingDays.length) * 100);
+      }
+
+      // 9. ROBUST TIMELINE PARSER (Month-aware, forgiving)
+      function parseTimeline(text) {
+        var lines = (text || '').split('\n');
+        var projects = [];
+        var notes = [];
+        var currentProject = null;
+        var inNotes = false;
+        var mStr = String(config.month);
+
+        lines.forEach(function (rawLine) {
+          var line = rawLine.trim();
+          if (!line) return;
+
+          if (/^Note\s*:/i.test(line)) {
+            inNotes = true;
+            return;
+          }
+
+          if (inNotes) {
+            notes.push(line.replace(/^-\s*/, ''));
+            return;
+          }
+
+          // Match Project Header: "1. 9910 - Tsubasa | RFP: 26.10 | On-track"
+          var projectMatch = line.match(/^(\d+)[\.\)]\s*(\d+)\s*-\s*([^|]+)\|\s*RFP:\s*([^\s|]+)(?:\s*\|\s*(.*))?$/i);
+          if (projectMatch) {
+            if (currentProject) projects.push(currentProject);
+
+            var rawStatus = (projectMatch[5] || '').trim();
+            var isDelayed = /off-track|delay/i.test(rawStatus);
+
+            var delayDate = null;
+            var delayMatch = rawStatus.match(/delay(?:ed)?\s*(\d{1,2}[./]\d{1,2})/i);
+            if (delayMatch) {
+              delayDate = delayMatch[1];
+            }
+
+            currentProject = {
+              id: projectMatch[1],
+              code: projectMatch[2].trim(),
+              name: projectMatch[3].trim(),
+              rfpDate: projectMatch[4].trim(),
+              status: isDelayed ? 'off-track' : 'on-track',
+              statusLabel: rawStatus || (isDelayed ? 'Off-track' : 'On-track'),
+              delayDate: delayDate,
+              tasks: [],
+              blockers: []
+            };
+            return;
+          }
+
+          if (currentProject) {
+            var cleanLine = line.replace(/^[-\*\s]+/, '');
+
+            // Blocker note
+            if (/^\(Note\)/i.test(cleanLine) || cleanLine.includes('cần thông tin') || cleanLine.includes('File MC') || cleanLine.includes('Math involve') || cleanLine.includes('chưa ai chịu trách nhiệm')) {
+              currentProject.blockers.push(cleanLine.replace(/^\(Note\)\s*/i, ''));
+              return;
+            }
+
+            // Stage type identification
+            var stageType = 'integrate';
+            if (/^BE\b/i.test(cleanLine)) stageType = 'be';
+            else if (/^FE\b/i.test(cleanLine)) stageType = 'fe';
+            else if (/^PL\s*,\s*BO\b/i.test(cleanLine)) stageType = 'plbo';
+            else if (/^QC\b/i.test(cleanLine)) stageType = 'qc';
+            else if (/Ready for Production|Milestone|RFP/i.test(cleanLine)) stageType = 'milestone';
+            else if (/Integrate|MLMC/i.test(cleanLine)) stageType = 'integrate';
+            else if (/Delivery|Asset|Sound/i.test(cleanLine)) stageType = 'asset';
+
+            // Duration
+            var durationDays = 1;
+            var durMatch = cleanLine.match(/\((\d+(?:\.\d+)?)\s*(?:days?|đays?|d)\)/i);
+            if (durMatch) {
+              durationDays = parseFloat(durMatch[1]);
+            }
+
+            // Title
+            var title = '';
+            var parenIndex = cleanLine.search(/\s*\(\s*\d+(?:\.\d+)?\s*(?:days?|đays?|d)\s*\)/i);
+            if (parenIndex !== -1) {
+              title = cleanLine.slice(0, parenIndex).trim();
+            } else {
+              var t = cleanLine
+                .replace(/[:\-]\s*ETA[.:\s].*$/i, '')
+                .replace(/\b(?:est|eta|done)\b.*$/i, '')
+                .replace(/\d{1,2}\s*-\s*\d{1,2}[./]\d{1,2}.*$/, '')
+                .replace(/\d{1,2}[./]\d{1,2}.*$/, '')
+                .replace(/[:\-\s]+$/, '')
+                .trim();
+              title = t || cleanLine;
+            }
+            title = title.replace(/[:\-\s]+$/, '').trim();
+
+            if (/Full Build/i.test(cleanLine) && !/Full Build/i.test(title)) {
+              title = title + ' Full Build';
+            }
+            if (/Execute Tcs/i.test(cleanLine) && !/Execute Tcs/i.test(title)) {
+              title = title + ' - Execute Tcs';
+            }
+
+            // Date Range Extraction (supports month flexibility e.g. .10, /10, .11, /11)
+            var startDay = null, endDay = null;
+            var dateSuffix = '(?:\\.' + mStr + '|/' + mStr + '|\\.\\d{1,2}|/\\d{1,2})';
+            var dblRegex = new RegExp('(\\d{1,2})' + dateSuffix + '\\s*-\\s*(\\d{1,2})' + dateSuffix);
+            var sglRangeRegex = new RegExp('(\\d{1,2})\\s*-\\s*(\\d{1,2})' + dateSuffix);
+            var sglRegex = new RegExp('(\\d{1,2})' + dateSuffix);
+
+            var dblMatch = cleanLine.match(dblRegex);
+            if (dblMatch) {
+              startDay = parseInt(dblMatch[1], 10);
+              endDay = parseInt(dblMatch[2], 10);
+            } else {
+              var sglRange = cleanLine.match(sglRangeRegex);
+              if (sglRange) {
+                startDay = parseInt(sglRange[1], 10);
+                endDay = parseInt(sglRange[2], 10);
+              } else {
+                var sglMatch = cleanLine.match(sglRegex);
+                if (sglMatch) {
+                  startDay = parseInt(sglMatch[1], 10);
+                  endDay = parseInt(sglMatch[1], 10);
+                }
+              }
+            }
+
+            if (startDay !== null) {
+              currentProject.tasks.push({
+                stageType: stageType,
+                title: title || cleanLine,
+                startDay: startDay,
+                endDay: endDay || startDay,
+                duration: durationDays,
+                rawText: cleanLine,
+                isMilestone: stageType === 'milestone'
+              });
+            } else {
+              currentProject.blockers.push(cleanLine);
+            }
+          }
+        });
+
+        if (currentProject) projects.push(currentProject);
+        return { projects: projects, notes: notes };
+      }
+
+      // 10. RENDER ORCHESTRATOR
+      function render() {
+        renderHeader();
+        renderKPIs();
+        renderLegend();
+        renderGantt();
+        renderNotes();
+      }
+
+      function renderHeader() {
+        document.getElementById('header-title').textContent = config.title;
+        document.getElementById('header-subtitle').textContent = config.subtitle;
+        document.title = config.title;
+      }
+
+      function renderKPIs() {
+        var total = parsedData.projects.length;
+        var ontrack = parsedData.projects.filter(function (p) { return p.status === 'on-track'; }).length;
+        var delayed = parsedData.projects.filter(function (p) { return p.status === 'off-track'; }).length;
+
+        // Find most common RFP
+        var rfpCounts = {};
+        var maxCount = 0;
+        var baseRfp = '-';
+        parsedData.projects.forEach(function (p) {
+          if (p.rfpDate) {
+            rfpCounts[p.rfpDate] = (rfpCounts[p.rfpDate] || 0) + 1;
+            if (rfpCounts[p.rfpDate] > maxCount) {
+              maxCount = rfpCounts[p.rfpDate];
+              baseRfp = p.rfpDate;
+            }
+          }
+        });
+
+        document.getElementById('kpi-total').textContent = total;
+        document.getElementById('kpi-ontrack').textContent = ontrack;
+        document.getElementById('kpi-delayed').textContent = delayed;
+        document.getElementById('kpi-rfp').textContent = baseRfp;
+      }
+
+      function renderLegend() {
+        var container = document.getElementById('legend-items');
+        var html = '';
+        Object.keys(STAGE_CONFIG).forEach(function (k) {
+          var item = STAGE_CONFIG[k];
+          html += '<span class="legend-item">' +
+            '<span class="legend-badge" style="background: ' + item.color + ';"></span>' +
+            '<span>' + escapeHtml(item.name) + '</span>' +
+            '</span>';
+        });
+        html += '<span class="legend-item">' +
+          '<span class="legend-badge" style="background: var(--today-line); border-radius: 50%;"></span>' +
+          '<span>Today</span>' +
+          '</span>';
+        container.innerHTML = html;
+      }
+
+      function renderNotes() {
+        var card = document.getElementById('notes-card');
+        var content = document.getElementById('notes-content');
+        if (parsedData.notes.length > 0) {
+          content.innerHTML = parsedData.notes.map(function (n) {
+            return '<p>• ' + escapeHtml(n) + '</p>';
+          }).join('');
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      }
+
+      // 11. GANTT CHART RENDERING (Inline SVG-free bar rendering)
+      function renderGantt() {
+        var workingDays = computeWorkingDays();
+        var container = document.getElementById('gantt-table');
+
+        // Filter projects
+        var filteredProjects = parsedData.projects.filter(function (p) {
+          var matchesFilter = activeFilter === 'all' || p.status === activeFilter;
+          var matchesSearch = !searchQuery ||
+            p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            p.code.toLowerCase().includes(searchQuery.toLowerCase());
+          return matchesFilter && matchesSearch;
+        });
+
+        // Determine Today column
+        var todayDay = config.todayOverride > 0 ? config.todayOverride : new Date().getDate();
+        var dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        var monthIdx = config.month - 1;
+
+        // Generate Header Columns
+        var headerColsHtml = '';
+        workingDays.forEach(function (d) {
+          var dateObj = new Date(config.year, monthIdx, d);
+          var dayName = dayNames[dateObj.getDay()];
+          var isToday = (d === todayDay);
+
+          headerColsHtml += '<div class="day-col-header ' + (isToday ? 'is-today' : '') + '">' +
+            '<div class="day-name">' + dayName + '</div>' +
+            '<div class="day-num">' + d + '.' + config.month + '</div>' +
+            '</div>';
+        });
+
+        // Generate Grid Columns HTML for each row
+        var gridColsHtml = workingDays.map(function () {
+          return '<div class="grid-guide-col"></div>';
+        }).join('');
+
+        // Generate Rows
+        var rowsHtml = '';
+        filteredProjects.forEach(function (proj) {
+          var isDelayed = proj.status === 'off-track';
+          var hasBlockers = proj.blockers && proj.blockers.length > 0;
+
+          // Min and Max day for master summary bar
+          var minStart = 99;
+          var maxEnd = 0;
+          proj.tasks.forEach(function (t) {
+            if (t.startDay < minStart) minStart = t.startDay;
+            if (t.endDay > maxEnd) maxEnd = t.endDay;
+          });
+          if (minStart === 99) { minStart = config.startDay; maxEnd = config.endDay; }
+
+          // RFP Day extraction
+          var rfpDay = null;
+          if (proj.rfpDate) {
+            var rfpMatch = proj.rfpDate.match(/^(\d{1,2})/);
+            if (rfpMatch) rfpDay = parseInt(rfpMatch[1], 10);
+          }
+
+          rowsHtml += '<div class="project-group" data-id="' + escapeHtml(proj.id) + '">' +
+            '<!-- MASTER ROW -->' +
+            '<div class="master-row">' +
+              '<div class="col-info">' +
+                '<div class="proj-meta">' +
+                  '<button class="toggle-btn" title="Toggle detailed stages">' +
+                    (areAllCollapsed ? '▶' : '▼') +
+                  '</button>' +
+                  '<div class="proj-title-box">' +
+                    '<div><span class="code">#' + escapeHtml(proj.code) + '</span> ' +
+                    '<span class="name" title="' + escapeHtml(proj.name) + '">' + escapeHtml(proj.name) + '</span></div>' +
+                    '<div class="proj-dates">RFP: <strong>' + escapeHtml(proj.rfpDate) + '</strong>' +
+                    (proj.delayDate ? ' • <span style="color:var(--danger)">Delay: ' + escapeHtml(proj.delayDate) + '</span>' : '') +
+                    '</div>' +
+                  '</div>' +
+                '</div>' +
+                '<div style="display:flex; align-items:center; gap:6px;">' +
+                  (hasBlockers ? '<span title="' + escapeHtml(proj.blockers.join(' | ')) + '" style="cursor:help; color:var(--warning); font-size:13px;">⚠️</span>' : '') +
+                  '<span class="status-badge ' + (isDelayed ? 'off-track' : 'on-track') + '">' +
+                    (isDelayed ? 'Delayed' : 'On-track') +
+                  '</span>' +
+                '</div>' +
+              '</div>' +
+              '<div class="col-canvas">' +
+                '<div class="grid-guides">' + gridColsHtml + '</div>' +
+                '<!-- Master Summary Bar -->' +
+                '<div class="master-summary-bar" style="left: ' + calcLeft(workingDays, minStart) + '%; width: ' + calcWidth(workingDays, minStart, maxEnd) + '%;">' +
+                '</div>' +
+                (rfpDay ? '<div class="rfp-diamond-marker" style="left: ' + (calcLeft(workingDays, rfpDay) + (calcWidth(workingDays, rfpDay, rfpDay) / 2)) + '%;" title="Target RFP: ' + escapeHtml(proj.rfpDate) + '"></div>' : '') +
+              '</div>' +
+            '</div>' +
+
+            '<!-- SUBTASKS -->' +
+            '<div class="subtasks-container ' + (areAllCollapsed ? 'hidden' : '') + '">' +
+              proj.tasks.map(function (task) {
+                var cfg = STAGE_CONFIG[task.stageType] || STAGE_CONFIG.integrate;
+                var isSingle = (task.startDay === task.endDay);
+                return '<div class="subtask-row">' +
+                  '<div class="subtask-info">' +
+                    '<span class="title" title="' + escapeHtml(task.title) + '">' +
+                      '<span class="stage-dot" style="background: ' + cfg.color + ';"></span>' +
+                      '<span>' + escapeHtml(task.title) + '</span>' +
+                      '<span style="color:var(--text-muted); font-size:10px;">(' + task.duration + 'd)</span>' +
+                    '</span>' +
+                    '<span class="range">' + task.startDay + '.' + config.month + (!isSingle ? ' ➔ ' + task.endDay + '.' + config.month : '') + '</span>' +
+                  '</div>' +
+                  '<div class="col-canvas">' +
+                    '<div class="grid-guides">' + gridColsHtml + '</div>' +
+                    '<div class="gantt-bar" style="left: ' + calcLeft(workingDays, task.startDay) + '%; width: ' + calcWidth(workingDays, task.startDay, task.endDay) + '%; background: ' + cfg.color + ';" title="' + escapeHtml(task.title) + ' (' + task.duration + 'd): ' + task.startDay + '.' + config.month + ' - ' + task.endDay + '.' + config.month + '">' +
+                      escapeHtml(task.title) + ' (' + task.duration + 'd)' +
+                    '</div>' +
+                  '</div>' +
+                '</div>';
+              }).join('') +
+            '</div>' +
+          '</div>';
+        });
+
+        // Assemble Entire Table with Header & Continuous Today vertical line
+        var todayPosPercent = calcLeft(workingDays, todayDay) + (calcWidth(workingDays, todayDay, todayDay) / 2);
+
+        container.innerHTML = '<!-- HEADER -->' +
+          '<div class="timeline-header">' +
+            '<div class="col-info-header">' +
+              '<span>Project & Deliverables</span>' +
+              '<span>Status</span>' +
+            '</div>' +
+            '<div class="col-canvas-header">' +
+              headerColsHtml +
+            '</div>' +
+          '</div>' +
+          '<!-- ROWS -->' +
+          '<div style="position:relative;">' +
+            '<!-- Continuous Today Vertical Line -->' +
+            '<div class="today-line-overlay" style="left: calc(380px + (100% - 380px) * (' + todayPosPercent + ' / 100));">' +
+              '<div class="today-pin">TODAY</div>' +
+            '</div>' +
+            rowsHtml +
+          '</div>';
+
+        // Bind Subtask Toggle Buttons
+        container.querySelectorAll('.toggle-btn').forEach(function (btn) {
+          btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var group = btn.closest('.project-group');
+            var subtasks = group.querySelector('.subtasks-container');
+            var isHidden = subtasks.classList.toggle('hidden');
+            btn.textContent = isHidden ? '▶' : '▼';
+          });
+        });
+      }
+
+      // 12. MODAL CONTROLLERS
+      function openModal(id) {
+        document.querySelectorAll('.modal-overlay').forEach(function (m) { m.classList.remove('active'); });
+        var target = document.getElementById(id);
+        if (target) target.classList.add('active');
+      }
+
+      function closeModals() {
+        document.querySelectorAll('.modal-overlay').forEach(function (m) { m.classList.remove('active'); });
+      }
+
+      // Settings Modal Setup
+      function populateSettingsModal() {
+        document.getElementById('cfg-title').value = config.title;
+        document.getElementById('cfg-subtitle').value = config.subtitle;
+        document.getElementById('cfg-month').value = config.month;
+        document.getElementById('cfg-year').value = config.year;
+        document.getElementById('cfg-start-day').value = config.startDay;
+        document.getElementById('cfg-end-day').value = config.endDay;
+        document.getElementById('cfg-today-override').value = config.todayOverride;
+      }
+
+      // 13. VISUAL BUILDER (FORM-BASED UI)
+      function importCurrentToBuilder() {
+        builderProjects = parsedData.projects.map(function (p) {
+          var rfpNum = 26;
+          var match = (p.rfpDate || '').match(/^(\d{1,2})/);
+          if (match) rfpNum = parseInt(match[1], 10);
+
+          return {
+            id: p.id,
+            code: p.code,
+            name: p.name,
+            rfpDay: rfpNum,
+            status: p.status,
+            stages: (p.tasks || []).map(function (t) {
+              return {
+                stageType: t.stageType || 'be',
+                title: t.title || '',
+                startDay: t.startDay || config.startDay,
+                endDay: t.endDay || t.startDay || config.startDay
+              };
+            })
+          };
+        });
+
+        if (builderProjects.length === 0) {
+          builderProjects = [createEmptyBuilderProject(1)];
+        }
+        renderBuilder();
+      }
+
+      function createEmptyBuilderProject(num) {
+        return {
+          id: String(num),
+          code: '100' + num,
+          name: 'Project ' + num,
+          rfpDay: 26,
+          status: 'on-track',
+          stages: [
+            { stageType: 'be', title: 'BE', startDay: config.startDay, endDay: config.startDay + 1 },
+            { stageType: 'fe', title: 'FE Full Build', startDay: config.startDay + 1, endDay: config.startDay + 2 }
+          ]
+        };
+      }
+
+      function renderBuilder() {
+        var container = document.getElementById('builder-projects-container');
+        document.getElementById('builder-proj-count').textContent = builderProjects.length + ' projects';
+
+        var stageOptions = Object.keys(STAGE_CONFIG).map(function (k) {
+          return '<option value="' + k + '">' + escapeHtml(STAGE_CONFIG[k].name) + '</option>';
+        }).join('');
+
+        container.innerHTML = builderProjects.map(function (proj, pIdx) {
+          return '<div class="builder-card" data-pidx="' + pIdx + '">' +
+            '<div class="builder-card-header">' +
+              '<span class="project-badge-num">#' + (pIdx + 1) + '</span>' +
+              '<input type="text" class="b-code" value="' + escapeHtml(proj.code) + '" placeholder="Code" style="width: 85px;" title="Project Code">' +
+              '<input type="text" class="b-name" value="' + escapeHtml(proj.name) + '" placeholder="Project Title" style="flex:1;" title="Project Name">' +
+              '<div style="display:flex; align-items:center; gap:4px; font-size:11px; font-weight:600; color:var(--text-muted);">' +
+                '<span>RFP:</span>' +
+                '<input type="number" class="b-rfp" value="' + proj.rfpDay + '" min="1" max="31" style="width:55px;">' +
+              '</div>' +
+              '<select class="b-status" style="width: 105px;">' +
+                '<option value="on-track" ' + (proj.status === 'on-track' ? 'selected' : '') + '>On-track</option>' +
+                '<option value="off-track" ' + (proj.status === 'off-track' ? 'selected' : '') + '>Delayed</option>' +
+              '</select>' +
+              '<button class="btn btn-danger b-del-proj" title="Delete project">✕</button>' +
+            '</div>' +
+
+            '<div class="builder-stage-list">' +
+              proj.stages.map(function (st, sIdx) {
+                return '<div class="builder-stage-row" data-sidx="' + sIdx + '">' +
+                  '<select class="b-stage-type" style="width: 120px;">' +
+                    Object.keys(STAGE_CONFIG).map(function (k) {
+                      return '<option value="' + k + '" ' + (st.stageType === k ? 'selected' : '') + '>' + escapeHtml(STAGE_CONFIG[k].name) + '</option>';
+                    }).join('') +
+                  '</select>' +
+                  '<input type="text" class="b-stage-title" value="' + escapeHtml(st.title) + '" placeholder="Stage Title" style="flex:1;">' +
+                  '<span style="font-size:11px; color:var(--text-muted);">From:</span>' +
+                  '<input type="number" class="b-stage-from" value="' + st.startDay + '" min="1" max="31" style="width:55px;">' +
+                  '<span style="font-size:11px; color:var(--text-muted);">To:</span>' +
+                  '<input type="number" class="b-stage-to" value="' + st.endDay + '" min="1" max="31" style="width:55px;">' +
+                  '<button class="btn btn-danger b-del-stage" style="padding:2px 6px;">✕</button>' +
+                '</div>';
+              }).join('') +
+              '<div>' +
+                '<button class="add-stage-link b-add-stage">+ Add stage</button>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+
+        // Bind Builder In-memory live sync
+        container.querySelectorAll('.builder-card').forEach(function (card) {
+          var pIdx = parseInt(card.getAttribute('data-pidx'), 10);
+
+          card.querySelector('.b-code').addEventListener('input', function (e) {
+            builderProjects[pIdx].code = e.target.value;
+          });
+          card.querySelector('.b-name').addEventListener('input', function (e) {
+            builderProjects[pIdx].name = e.target.value;
+          });
+          card.querySelector('.b-rfp').addEventListener('change', function (e) {
+            builderProjects[pIdx].rfpDay = parseInt(e.target.value, 10) || 26;
+          });
+          card.querySelector('.b-status').addEventListener('change', function (e) {
+            builderProjects[pIdx].status = e.target.value;
+          });
+          card.querySelector('.b-del-proj').addEventListener('click', function () {
+            builderProjects.splice(pIdx, 1);
+            if (builderProjects.length === 0) builderProjects.push(createEmptyBuilderProject(1));
+            renderBuilder();
+          });
+
+          card.querySelectorAll('.builder-stage-row').forEach(function (sRow) {
+            var sIdx = parseInt(sRow.getAttribute('data-sidx'), 10);
+            var typeSelect = sRow.querySelector('.b-stage-type');
+            var titleInput = sRow.querySelector('.b-stage-title');
+
+            typeSelect.addEventListener('change', function (e) {
+              builderProjects[pIdx].stages[sIdx].stageType = e.target.value;
+              // Auto fill title if empty
+              if (!titleInput.value.trim()) {
+                var defaultName = STAGE_CONFIG[e.target.value].name;
+                titleInput.value = defaultName;
+                builderProjects[pIdx].stages[sIdx].title = defaultName;
+              }
+            });
+
+            titleInput.addEventListener('input', function (e) {
+              builderProjects[pIdx].stages[sIdx].title = e.target.value;
+            });
+            sRow.querySelector('.b-stage-from').addEventListener('change', function (e) {
+              builderProjects[pIdx].stages[sIdx].startDay = parseInt(e.target.value, 10) || 1;
+            });
+            sRow.querySelector('.b-stage-to').addEventListener('change', function (e) {
+              builderProjects[pIdx].stages[sIdx].endDay = parseInt(e.target.value, 10) || 1;
+            });
+            sRow.querySelector('.b-del-stage').addEventListener('click', function () {
+              builderProjects[pIdx].stages.splice(sIdx, 1);
+              renderBuilder();
+            });
+          });
+
+          card.querySelector('.b-add-stage').addEventListener('click', function () {
+            builderProjects[pIdx].stages.push({
+              stageType: 'fe',
+              title: 'FE Full Build',
+              startDay: config.startDay,
+              endDay: config.startDay + 1
+            });
+            renderBuilder();
+          });
+        });
+      }
+
+      // Convert Builder Data Model to Raw Timeline Text
+      function builderToRawText() {
+        var mStr = String(config.month);
+        var text = 'Timeline ' + config.title + '\n\n—\n';
+
+        builderProjects.forEach(function (proj, idx) {
+          var num = idx + 1;
+          var statusStr = proj.status === 'off-track' ? 'Off-track' : 'On-track';
+          text += num + '. ' + proj.code + ' - ' + proj.name + ' | RFP: ' + proj.rfpDay + '.' + mStr + ' | ' + statusStr + '\n';
+
+          (proj.stages || []).forEach(function (st) {
+            var dur = Math.max(1, (st.endDay - st.startDay) + 1);
+            var dateStr = (st.startDay === st.endDay) ?
+              (st.startDay + '.' + mStr) :
+              (st.startDay + '.' + mStr + ' - ' + st.endDay + '.' + mStr);
+            text += '- ' + st.title + ' (' + dur + ' days): - ETA: ' + dateStr + '\n';
+          });
+          text += '\n';
+        });
+
+        if (parsedData.notes.length > 0) {
+          text += 'Note:\n' + parsedData.notes.map(function (n) { return '- ' + n; }).join('\n');
+        }
+
+        return text;
+      }
+
+      // 14. INITIALIZE APP & EVENT LISTENERS
+      function init() {
+        // Theme initialization
+        var savedTheme = localStorage.getItem('roadmap_theme');
+        if (savedTheme) {
+          document.documentElement.setAttribute('data-theme', savedTheme);
+        }
+
+        // Parse initial data
+        parsedData = parseTimeline(rawText);
+        render();
+
+        // Theme Toggle
+        document.getElementById('btn-theme-toggle').addEventListener('click', function () {
+          var current = document.documentElement.getAttribute('data-theme');
+          var isDark = current === 'dark' || (!current && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          var nextTheme = isDark ? 'light' : 'dark';
+          document.documentElement.setAttribute('data-theme', nextTheme);
+          localStorage.setItem('roadmap_theme', nextTheme);
+          showToast('Switched to ' + nextTheme + ' theme');
+        });
+
+        // Search Input
+        document.getElementById('search-input').addEventListener('input', function (e) {
+          searchQuery = e.target.value.trim();
+          renderGantt();
+        });
+
+        // Filter Tabs
+        document.querySelectorAll('.filter-tab').forEach(function (tab) {
+          tab.addEventListener('click', function () {
+            document.querySelectorAll('.filter-tab').forEach(function (t) { t.classList.remove('active'); });
+            tab.classList.add('active');
+            activeFilter = tab.getAttribute('data-filter');
+            renderGantt();
+          });
+        });
+
+        // Collapse / Expand All
+        document.getElementById('btn-toggle-all').addEventListener('click', function () {
+          areAllCollapsed = !areAllCollapsed;
+          document.getElementById('toggle-all-label').textContent = areAllCollapsed ? 'Expand All' : 'Collapse All';
+          renderGantt();
+        });
+
+        // Copy Markdown Summary
+        document.getElementById('btn-copy').addEventListener('click', function () {
+          var md = '# ' + config.title + ' (RFP: Month ' + config.month + '/' + config.year + ')\n\n' +
+            '| Code | Project Name | Status | RFP | Deliverables Timeline |\n' +
+            '| :--- | :--- | :---: | :---: | :--- |\n';
+
+          parsedData.projects.forEach(function (p) {
+            var st = p.status === 'on-track' ? '✅ On-track' : '⚠️ Delayed';
+            var span = p.tasks.length > 0 ? (p.tasks[0].startDay + '.' + config.month + ' ➔ ' + p.tasks[p.tasks.length - 1].endDay + '.' + config.month) : '-';
+            md += '| ' + p.code + ' | ' + p.name + ' | ' + st + ' | ' + p.rfpDate + ' | ' + span + ' |\n';
+          });
+
+          if (parsedData.notes.length > 0) {
+            md += '\n### Notes:\n' + parsedData.notes.map(function (n) { return '- ' + n; }).join('\n');
+          }
+
+          navigator.clipboard.writeText(md).then(function () {
+            showToast('Markdown summary copied to clipboard!');
+          });
+        });
+
+        // Export Standalone HTML
+        document.getElementById('btn-export').addEventListener('click', function () {
+          var fullHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+          var blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
+          var url = URL.createObjectURL(blob);
+          var a = document.createElement('a');
+          a.href = url;
+          var filename = config.title.toLowerCase().replace(/[^a-z0-9]/g, '_') + '.html';
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          showToast('Roadmap HTML exported successfully!');
+        });
+
+        // Modal triggers
+        document.getElementById('btn-settings').addEventListener('click', function () {
+          populateSettingsModal();
+          openModal('modal-settings');
+        });
+
+        document.getElementById('btn-source').addEventListener('click', function () {
+          document.getElementById('raw-source-textarea').value = rawText;
+          openModal('modal-source');
+        });
+
+        document.getElementById('btn-builder').addEventListener('click', function () {
+          importCurrentToBuilder();
+          openModal('modal-builder');
+        });
+
+        // Close modal buttons
+        document.querySelectorAll('.btn-close-modal').forEach(function (btn) {
+          btn.addEventListener('click', closeModals);
+        });
+
+        // Keyboard Escape key to dismiss modals
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape') closeModals();
+        });
+
+        // Save Settings
+        document.getElementById('btn-save-settings').addEventListener('click', function () {
+          config.title = document.getElementById('cfg-title').value.trim() || DEFAULT_CONFIG.title;
+          config.subtitle = document.getElementById('cfg-subtitle').value.trim() || DEFAULT_CONFIG.subtitle;
+          config.month = parseInt(document.getElementById('cfg-month').value, 10) || DEFAULT_CONFIG.month;
+          config.year = parseInt(document.getElementById('cfg-year').value, 10) || DEFAULT_CONFIG.year;
+          config.startDay = parseInt(document.getElementById('cfg-start-day').value, 10) || DEFAULT_CONFIG.startDay;
+          config.endDay = parseInt(document.getElementById('cfg-end-day').value, 10) || DEFAULT_CONFIG.endDay;
+          config.todayOverride = parseInt(document.getElementById('cfg-today-override').value, 10) || 0;
+
+          saveConfig(config);
+          parsedData = parseTimeline(rawText);
+          render();
+          closeModals();
+          showToast('Settings saved successfully!');
+        });
+
+        // Load Sample Data in Source Modal
+        document.getElementById('btn-load-sample').addEventListener('click', function () {
+          document.getElementById('raw-source-textarea').value = SAMPLE_TIMELINE;
+        });
+
+        // Apply Source Raw Text
+        document.getElementById('btn-apply-source').addEventListener('click', function () {
+          var txt = document.getElementById('raw-source-textarea').value;
+          rawText = txt;
+          saveRawText(rawText);
+          parsedData = parseTimeline(rawText);
+          render();
+          closeModals();
+          showToast('Source parsed and rendered!');
+        });
+
+        // Builder Actions
+        document.getElementById('btn-builder-import').addEventListener('click', function () {
+          importCurrentToBuilder();
+          showToast('Imported current timeline data');
+        });
+
+        document.getElementById('btn-builder-clear').addEventListener('click', function () {
+          builderProjects = [createEmptyBuilderProject(1)];
+          renderBuilder();
+        });
+
+        document.getElementById('btn-builder-add-proj').addEventListener('click', function () {
+          var nextNum = builderProjects.length + 1;
+          builderProjects.push(createEmptyBuilderProject(nextNum));
+          renderBuilder();
+          // Focus code input of new project
+          var cards = document.querySelectorAll('.builder-card');
+          var lastCard = cards[cards.length - 1];
+          if (lastCard) {
+            var codeInput = lastCard.querySelector('.b-code');
+            if (codeInput) codeInput.focus();
+          }
+        });
+
+        document.getElementById('btn-builder-apply').addEventListener('click', function () {
+          var generatedText = builderToRawText();
+          rawText = generatedText;
+          saveRawText(rawText);
+          parsedData = parseTimeline(rawText);
+          render();
+          closeModals();
+          showToast('Builder timeline applied successfully!');
+        });
+      }
+
+      // Run on DOM ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
+  </script>
+</body>
+</html>
