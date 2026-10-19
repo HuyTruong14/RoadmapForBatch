@@ -13,6 +13,8 @@
   <!-- Firebase SDKs for Real-time Team Synchronization -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <!-- SheetJS for Client-Side Excel Import/Export -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <style>
     /* CSS CUSTOM PROPERTIES (THEME TOKENS) */
@@ -751,6 +753,42 @@
       font-size: 10px;
       color: var(--text-muted);
       margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .studio-badge {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: rgba(79, 110, 247, 0.12);
+      color: var(--accent);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-right: 4px;
+      vertical-align: middle;
+      border: 1px solid rgba(79, 110, 247, 0.25);
+    }
+
+    .proj-note-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      color: var(--text-secondary);
+      font-size: 10px;
+      background: var(--surface-alt);
+      padding: 1px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      max-width: 250px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      vertical-align: middle;
     }
 
     .status-badge {
@@ -1384,10 +1422,22 @@
           Share Link
         </button>
 
+        <!-- Excel Import/Export Tools -->
+        <button id="btn-import-excel" class="btn admin-only" title="Import timeline từ file Excel ([Delivery] Tracking Timeline.xlsx)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+          Import Excel
+        </button>
+        <input type="file" id="excel-file-input" accept=".xlsx, .xls" style="display: none;">
+
+        <button id="btn-export-excel" class="btn" title="Export dữ liệu ra file Excel chuẩn [Delivery] Tracking Timeline">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="16" y2="17"></line></svg>
+          Export Excel
+        </button>
+
         <!-- General Roadmap Utilities (Available to both Guest and Admin) -->
         <button id="btn-export" class="btn" title="Export standalone HTML file">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-          Export
+          Export HTML
         </button>
 
         <button id="btn-theme-toggle" class="btn btn-icon" title="Toggle Light / Dark Mode">
@@ -1688,55 +1738,54 @@
       };
 
       // 3. BUILT-IN SAMPLE RAW TIMELINE DATA
-      var DATA_VERSION = '2026-10-16-v2';
+      var DATA_VERSION = '2026-10-19-v3';
       var SAMPLE_TIMELINE = `Timeline Roadmap Planner
 
 —
-1. 1992 - One Piece Grand Line | RFP: 26.10 | On-track
-- BE (1 days): - ETA: 14.10
-- FE Full Build (1 days): - ETA: 15.10
-- PL, BO (1 days): - ETA: 16.10
-- QC Testing & Fix Bug (5 days): - ETA: 15.10 - 19.10
+1. 1992 - One Piece Grand Line | RTD: 26/10/2026 | On-track | Studio: DeepSea | Note: Test migration + 0.25 MDs
+- BE (1 days): - ETA: 14/10/2026 -> 14/10/2026
+- FE (1 days): - ETA: 15/10/2026 -> 15/10/2026
+- BO Tool (2 days): - ETA: 16/10/2026 -> 19/10/2026
+- Testing & Fix bug (4 days): - ETA: 15/10/2026 -> 20/10/2026
 
-2. 9910 - Tsubasa | RFP: 26.10 | On-track
-- BE (1 days): - ETA: 14.10
-- FE Full Build (2 days): - ETA: 15.10 - 16.10
-- PL, BO (1 days): - ETA: 19.10
-- QC Testing & Fix Bug BO Tool (5 days): - ETA: 16.10 - 20.10
+2. 9910 - Tsubasa | RTD: 26/10/2026 | On-track | Studio: Pandoria | Note: Test migration + 0.5 MDs
+- BE (1 days): - ETA: 14/10/2026 -> 14/10/2026
+- FE (2 days): - ETA: 15/10/2026 -> 16/10/2026
+- BO Tool (1 days): - ETA: 19/10/2026 -> 19/10/2026
+- Testing & Fix bug (4 days): - ETA: 16/10/2026 -> 21/10/2026
 
-3. 9939 - Gundam Battle | RFP: 26.10 | On-track
-- BE (1 days): - ETA: 14.10
-- FE Full Build (2 days): - ETA: 15.10 - 16.10
-- PL, BO (1 days): - ETA: 20.10
-- QC Testing & Fix Bug BO Tool (3 days): - ETA: 19.10 - 21.10
+3. 9939 - Gundam Battle | RTD: 26/10/2026 | On-track | Studio: Aterlus | Note: Test migration + 0.5 MDs
+- BE (1 days): - ETA: 14/10/2026 -> 14/10/2026
+- FE (2 days): - ETA: 15/10/2026 -> 16/10/2026
+- BO Tool (1 days): - ETA: 20/10/2026 -> 20/10/2026
+- Testing & Fix bug (4 days): - ETA: 19/10/2026 -> 22/10/2026
 
-4. 9869 - Naruto | RFP: 26.10 | On-track
-- BE (1 days): - ETA: 14.10
-- Delivery Sound, Asset (2 days): - ETA: 14.10 - 15.10
-- FE (4 days): - ETA: 16.10 - 19.10
-- PL, BO (1 days): - ETA: 21.10
-- QC Testing & Fix Bug BO Tool (4 days): - ETA: 20.10 - 23.10
+4. 9869 - Naruto | RTD: 26/10/2026 | On-track | Studio: OneForce | Note: Test migration + 0.5 MDs
+- Localization (2 days): - ETA: 14/10/2026 -> 15/10/2026
+- BE (1 days): - ETA: 14/10/2026 -> 14/10/2026
+- FE (2 days): - ETA: 16/10/2026 -> 19/10/2026
+- BO Tool (1 days): - ETA: 21/10/2026 -> 21/10/2026
+- Testing & Fix bug (4 days): - ETA: 20/10/2026 -> 23/10/2026
 
-5. 2989 - Taiko Rabbit | RFP: 26.10 | On-track
-- BE (1 days): - ETA: 14.10
-- Delivery Sound, Asset (2 days): - ETA: 15.10 - 16.10
-- FE Full Build (5 days): - ETA: 16.10 - 20.10
-- PL, BO (1 days): - ETA: 22.10
-- QC Testing & Fix Bug BO Tool (4 days): - ETA: 20.10 - 23.10
+5. 2989 - Taiko Rabbit | RTD: 26/10/2026 | On-track | Studio: Apek | Note: Không test migration
+- BE (1 days): - ETA: 14/10/2026 -> 14/10/2026
+- FE (3 days): - ETA: 16/10/2026 -> 20/10/2026
+- BO Tool (1 days): - ETA: 22/10/2026 -> 22/10/2026
+- Testing & Fix bug (4 days): - ETA: 20/10/2026 -> 23/10/2026
 
-6. 9897 - Dragon Ball | RFP: 26.10 | On-track
-- BE (1 days): - ETA: 15.10
-- Delivery Asset EN (2 days): - ETA: 15.10 - 16.10
-- FE (4 days): - ETA: 16.10 - 19.10
-- PL, BO (1 days): - ETA: 23.10
-- QC Testing & Fix Bug BO Tool (4 days): - ETA: 20.10 - 23.10
+6. 9897 - Dragon Ball | RTD: 26/10/2026 | On-track | Studio: Bee | Note: Không test migration
+- Localization (3 days): - ETA: 14/10/2026 -> 16/10/2026
+- BE (1 days): - ETA: 15/10/2026 -> 15/10/2026
+- FE (2 days): - ETA: 16/10/2026 -> 19/10/2026
+- BO Tool (1 days): - ETA: 23/10/2026 -> 23/10/2026
+- Testing & Fix bug (4 days): - ETA: 19/10/2026 -> 23/10/2026
 
-7. 3920 - Rise Of Ronin | RFP: 26.10 | Off-track
-- BE (1 days): - ETA: 19.10
-- Delivery Asset EN (2 days): - ETA: 19.10 - 20.10
-- FE (1 days): - ETA: 21.10
-- PL, BO (1 days): - ETA: 26.10
-- QC Testing & Fix Bug BO Tool (8 days): - ETA: 21.10 - 28.10
+7. 3920 - Rise Of Ronin | RTD: 29/10/2026 | Off-track | Studio: Slayteria | Note: Test migration + 1 MD
+- Localization (4 days): - ETA: 14/10/2026 -> 19/10/2026
+- BE (1 days): - ETA: 16/10/2026 -> 16/10/2026
+- FE (2 days): - ETA: 19/10/2026 -> 20/10/2026
+- BO Tool (1 days): - ETA: 24/10/2026 -> 24/10/2026
+- Testing & Fix bug (6 days): - ETA: 21/10/2026 -> 28/10/2026
 
 Note:
 - Timeline QC chưa bao gồm scope test migration. Nếu có thì phát sinh sẽ + tầm 0.5day - 1day/ 1 con (confirm vào 16.10)`;
@@ -2082,16 +2131,29 @@ Note:
             return;
           }
 
-          // Match Project Header: "1. 9910 - Tsubasa | RTD: 26/10/2026 | On-track" or "RFP: 26.10"
+          // Match Project Header: "1. 9910 - Tsubasa | RTD: 26/10/2026 | On-track | Studio: DeepSea | Note: ..."
           var projectMatch = line.match(/^(\d+)[\.\)]\s*(\d+)\s*-\s*([^|]+)\|\s*(?:RTD|RFP):\s*([^\s|]+)(?:\s*\|\s*(.*))?$/i);
           if (projectMatch) {
             if (currentProject) projects.push(currentProject);
 
-            var rawStatus = (projectMatch[5] || '').trim();
-            var isDelayed = /off-track|delay/i.test(rawStatus);
+            var extraParts = (projectMatch[5] || '').split('|').map(function (s) { return s.trim(); });
+            var mainStatusPart = extraParts[0] || 'On-track';
+            var isDelayed = /off-track|delay/i.test(mainStatusPart);
+            var studio = '';
+            var projNote = '';
+            var projectStatus = 'Development';
+
+            extraParts.forEach(function (part) {
+              var mStudio = part.match(/^Studio:\s*(.+)$/i);
+              if (mStudio) studio = mStudio[1].trim();
+              var mNote = part.match(/^Note:\s*(.+)$/i);
+              if (mNote) projNote = mNote[1].trim();
+              var mPStat = part.match(/^DevStatus:\s*(.+)$/i);
+              if (mPStat) projectStatus = mPStat[1].trim();
+            });
 
             var delayDate = null;
-            var delayMatch = rawStatus.match(/delay(?:ed)?\s*(\d{1,2}[./]\d{1,2})/i);
+            var delayMatch = mainStatusPart.match(/delay(?:ed)?\s*(\d{1,2}[./]\d{1,2})/i);
             if (delayMatch) {
               delayDate = delayMatch[1];
             }
@@ -2105,10 +2167,13 @@ Note:
               id: projectMatch[1],
               code: projectMatch[2].trim(),
               name: projectMatch[3].trim(),
+              studio: studio,
+              note: projNote,
+              projectStatus: projectStatus,
               rfpDate: rtdFormatted,
               rfpDay: rtdDay,
               status: isDelayed ? 'off-track' : 'on-track',
-              statusLabel: rawStatus || (isDelayed ? 'Off-track' : 'On-track'),
+              statusLabel: mainStatusPart || (isDelayed ? 'Off-track' : 'On-track'),
               delayDate: delayDate,
               tasks: [],
               blockers: []
@@ -2129,11 +2194,11 @@ Note:
             var stageType = 'integrate';
             if (/^BE\b/i.test(cleanLine)) stageType = 'be';
             else if (/^FE\b/i.test(cleanLine)) stageType = 'fe';
-            else if (/^PL\s*,\s*BO\b/i.test(cleanLine)) stageType = 'plbo';
-            else if (/^QC\b/i.test(cleanLine)) stageType = 'qc';
+            else if (/^PL\s*,\s*BO\b|^BO\s*Tool\b/i.test(cleanLine)) stageType = 'plbo';
+            else if (/^QC\b|^Testing\b/i.test(cleanLine)) stageType = 'qc';
             else if (/Ready for Production|Milestone|RFP|RTD/i.test(cleanLine)) stageType = 'milestone';
             else if (/Integrate|MLMC/i.test(cleanLine)) stageType = 'integrate';
-            else if (/Delivery|Asset|Sound/i.test(cleanLine)) stageType = 'asset';
+            else if (/Delivery|Asset|Sound|Localization/i.test(cleanLine)) stageType = 'asset';
 
             // Duration
             var durationDays = 1;
@@ -2380,10 +2445,14 @@ Note:
                     (areAllCollapsed ? '▶' : '▼') +
                   '</button>' +
                   '<div class="proj-title-box">' +
-                    '<div><span class="code">#' + escapeHtml(proj.code) + '</span> ' +
+                    '<div>' +
+                    (proj.studio ? '<span class="studio-badge">' + escapeHtml(proj.studio) + '</span>' : '') +
+                    '<span class="code">#' + escapeHtml(proj.code) + '</span> ' +
                     '<span class="name" title="' + escapeHtml(proj.name) + '">' + escapeHtml(proj.name) + '</span></div>' +
-                    '<div class="proj-dates">RTD: <strong>' + escapeHtml(proj.rfpDate) + '</strong>' +
-                    (proj.delayDate ? ' • <span style="color:var(--danger)">Delay: ' + escapeHtml(proj.delayDate) + '</span>' : '') +
+                    '<div class="proj-dates">' +
+                      '<span>RTD: <strong>' + escapeHtml(proj.rfpDate) + '</strong></span>' +
+                      (proj.delayDate ? ' • <span style="color:var(--danger)">Delay: ' + escapeHtml(proj.delayDate) + '</span>' : '') +
+                      (proj.note ? ' • <span class="proj-note-pill" title="' + escapeHtml(proj.note) + '">📝 ' + escapeHtml(proj.note) + '</span>' : '') +
                     '</div>' +
                   '</div>' +
                 '</div>' +
@@ -2509,6 +2578,8 @@ Note:
             id: p.id,
             code: p.code,
             name: p.name,
+            studio: p.studio || '',
+            note: p.note || '',
             rtdDate: rtdFormatted,
             rtdDay: rtdNum,
             status: p.status,
@@ -2541,6 +2612,8 @@ Note:
           id: String(num),
           code: '100' + num,
           name: 'Project ' + num,
+          studio: '',
+          note: '',
           rtdDate: rtdStr,
           rtdDay: 26,
           status: 'on-track',
@@ -2564,13 +2637,15 @@ Note:
           return '<div class="builder-card" data-pidx="' + pIdx + '">' +
             '<div class="builder-card-header">' +
               '<span class="project-badge-num">#' + (pIdx + 1) + '</span>' +
-              '<input type="text" class="b-code" value="' + escapeHtml(proj.code) + '" placeholder="Code" style="width: 85px;" title="Project Code">' +
+              '<input type="text" class="b-studio" value="' + escapeHtml(proj.studio || '') + '" placeholder="Studio" style="width: 75px;" title="Studio (e.g. DeepSea)">' +
+              '<input type="text" class="b-code" value="' + escapeHtml(proj.code) + '" placeholder="Code" style="width: 75px;" title="Project Code">' +
               '<input type="text" class="b-name" value="' + escapeHtml(proj.name) + '" placeholder="Project Title" style="flex:1;" title="Project Name">' +
               '<div style="display:flex; align-items:center; gap:4px; font-size:11px; font-weight:600; color:var(--text-muted);">' +
                 '<span>RTD:</span>' +
-                '<input type="text" class="b-rtd" value="' + escapeHtml(projRtd) + '" placeholder="dd/mm/yyyy" style="width:95px; text-align:center;" title="Ready to Delivery date (dd/mm/yyyy)">' +
+                '<input type="text" class="b-rtd" value="' + escapeHtml(projRtd) + '" placeholder="dd/mm/yyyy" style="width:90px; text-align:center;" title="Ready to Delivery date (dd/mm/yyyy)">' +
               '</div>' +
-              '<select class="b-status" style="width: 105px;">' +
+              '<input type="text" class="b-note" value="' + escapeHtml(proj.note || '') + '" placeholder="Note (vd: Test migration + 0.5 MDs)" style="width: 140px;" title="Ghi chú kỹ thuật">' +
+              '<select class="b-status" style="width: 95px;">' +
                 '<option value="on-track" ' + (proj.status === 'on-track' ? 'selected' : '') + '>On-track</option>' +
                 '<option value="off-track" ' + (proj.status === 'off-track' ? 'selected' : '') + '>Delayed</option>' +
               '</select>' +
@@ -2610,6 +2685,9 @@ Note:
         container.querySelectorAll('.builder-card').forEach(function (card) {
           var pIdx = parseInt(card.getAttribute('data-pidx'), 10);
 
+          card.querySelector('.b-studio').addEventListener('input', function (e) {
+            builderProjects[pIdx].studio = e.target.value;
+          });
           card.querySelector('.b-code').addEventListener('input', function (e) {
             builderProjects[pIdx].code = e.target.value;
           });
@@ -2620,6 +2698,9 @@ Note:
             builderProjects[pIdx].rtdDate = e.target.value;
             var pr = parseDateStr(e.target.value);
             if (pr) builderProjects[pIdx].rtdDay = pr.day;
+          });
+          card.querySelector('.b-note').addEventListener('input', function (e) {
+            builderProjects[pIdx].note = e.target.value;
           });
           card.querySelector('.b-status').addEventListener('change', function (e) {
             builderProjects[pIdx].status = e.target.value;
@@ -2699,7 +2780,10 @@ Note:
           var num = idx + 1;
           var statusStr = proj.status === 'off-track' ? 'Off-track' : 'On-track';
           var rtd = proj.rtdDate || formatDateStr(proj.rtdDay || 26, config.month, config.year);
-          text += num + '. ' + proj.code + ' - ' + proj.name + ' | RTD: ' + rtd + ' | ' + statusStr + '\n';
+          var headerLine = num + '. ' + proj.code + ' - ' + proj.name + ' | RTD: ' + rtd + ' | ' + statusStr;
+          if (proj.studio) headerLine += ' | Studio: ' + proj.studio;
+          if (proj.note) headerLine += ' | Note: ' + proj.note;
+          text += headerLine + '\n';
 
           (proj.stages || []).forEach(function (st) {
             var sDate = st.startDate || formatDateStr(st.startDay, config.month, config.year);
@@ -3105,8 +3189,8 @@ Note:
             el.remove();
           });
 
-          // 3. Remove cloud badges, last edit badges, copy buttons, admin tools
-          docClone.querySelectorAll('#cloud-status-badge, #last-edit-badge, #role-container, .admin-only, .guest-only, #btn-copy').forEach(function (el) {
+          // 3. Remove cloud badges, last edit badges, copy buttons, admin tools, excel import/export
+          docClone.querySelectorAll('#cloud-status-badge, #last-edit-badge, #role-container, .admin-only, .guest-only, #btn-copy, #btn-import-excel, #excel-file-input, #btn-export-excel').forEach(function (el) {
             el.remove();
           });
 
@@ -3158,6 +3242,245 @@ Note:
           document.body.removeChild(a);
           URL.revokeObjectURL(url);
           showToast('✅ Đã xuất file HTML roadmap gọn gàng (chỉ roadmap, không kèm nút thao tác): ' + filename);
+        });
+
+        // 14.3 Excel Import & Export Operations ([Delivery] Tracking Timeline)
+        function excelSerialToDateStr(val) {
+          if (!val || val === 'N/A' || val === 'n/a') return null;
+          if (typeof val === 'string') {
+            var p = parseDateStr(val, config.month, config.year);
+            if (p) return formatDateStr(p.day, p.month, p.year);
+            var m = val.match(/^(\d{1,2})[\/\.-](\d{1,2})[\/\.-](\d{4})/);
+            if (m) return (String(m[1]).padStart(2, '0') + '/' + String(m[2]).padStart(2, '0') + '/' + m[3]);
+          }
+          var num = parseFloat(val);
+          if (!isNaN(num) && num > 20000 && num < 60000) {
+            var date = new Date(Math.round((num - 25569) * 86400 * 1000));
+            var d = String(date.getUTCDate()).padStart(2, '0');
+            var m = String(date.getUTCMonth() + 1).padStart(2, '0');
+            var y = date.getUTCFullYear();
+            return d + '/' + m + '/' + y;
+          }
+          return null;
+        }
+
+        function handleExcelUpload(file) {
+          if (!file) return;
+          if (typeof XLSX === 'undefined') {
+            showToast('⚠️ Thư viện SheetJS chưa sẵn sàng!');
+            return;
+          }
+
+          var reader = new FileReader();
+          reader.onload = function (e) {
+            try {
+              var data = new Uint8Array(e.target.result);
+              var wb = XLSX.read(data, { type: 'array' });
+              var sheetName = wb.SheetNames[0];
+              if (wb.SheetNames.indexOf('Brazil Anime Batch') !== -1) {
+                sheetName = 'Brazil Anime Batch';
+              }
+              var ws = wb.Sheets[sheetName];
+              var rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true });
+
+              var lines = [
+                config.title || 'Timeline Roadmap Planner',
+                '',
+                '—'
+              ];
+              var projCount = 0;
+
+              for (var rIdx = 3; rIdx < rows.length; rIdx++) {
+                var r = rows[rIdx];
+                if (!r || !r[1]) continue;
+
+                projCount++;
+                var studio = (r[0] != null ? String(r[0]) : '').trim();
+                var projectRaw = (r[1] != null ? String(r[1]) : '').trim();
+                var devStatus = (r[2] != null ? String(r[2]) : '').trim();
+                var locStart = excelSerialToDateStr(r[4]);
+                var locEnd = excelSerialToDateStr(r[5]);
+                var beStart = excelSerialToDateStr(r[6]);
+                var beEnd = excelSerialToDateStr(r[7]);
+                var feStart = excelSerialToDateStr(r[8]);
+                var feEnd = excelSerialToDateStr(r[9]);
+                var boStart = excelSerialToDateStr(r[10]);
+                var boEnd = excelSerialToDateStr(r[11]);
+                var qcStart = excelSerialToDateStr(r[12]);
+                var qcEnd = excelSerialToDateStr(r[13]);
+                var rtd = excelSerialToDateStr(r[14]) || config.rtdDate || '26/10/2026';
+                var note = (r[15] != null ? String(r[15]) : '').trim();
+
+                var code = String(1000 + projCount);
+                var name = projectRaw;
+                var mCode = projectRaw.match(/^(\d+)\s*-\s*(.+)$/);
+                if (mCode) {
+                  code = mCode[1].trim();
+                  name = mCode[2].trim();
+                }
+
+                var headerLine = projCount + '. ' + code + ' - ' + name + ' | RTD: ' + rtd + ' | On-track';
+                if (studio) headerLine += ' | Studio: ' + studio;
+                if (note) headerLine += ' | Note: ' + note;
+                if (devStatus) headerLine += ' | DevStatus: ' + devStatus;
+                lines.push(headerLine);
+
+                if (beStart && beEnd) {
+                  var dBe = calcDateDiffDays(beStart, beEnd);
+                  lines.push('- BE (' + dBe + ' days): - ETA: ' + beStart + (beStart !== beEnd ? ' -> ' + beEnd : ''));
+                }
+                if (locStart && locEnd) {
+                  var dLoc = calcDateDiffDays(locStart, locEnd);
+                  lines.push('- Localization (' + dLoc + ' days): - ETA: ' + locStart + (locStart !== locEnd ? ' -> ' + locEnd : ''));
+                }
+                if (feStart && feEnd) {
+                  var dFe = calcDateDiffDays(feStart, feEnd);
+                  lines.push('- FE (' + dFe + ' days): - ETA: ' + feStart + (feStart !== feEnd ? ' -> ' + feEnd : ''));
+                }
+                if (boStart && boEnd) {
+                  var dBo = calcDateDiffDays(boStart, boEnd);
+                  lines.push('- BO Tool (' + dBo + ' days): - ETA: ' + boStart + (boStart !== boEnd ? ' -> ' + boEnd : ''));
+                }
+                if (qcStart && qcEnd) {
+                  var dQc = calcDateDiffDays(qcStart, qcEnd);
+                  lines.push('- Testing & Fix bug (' + dQc + ' days): - ETA: ' + qcStart + (qcStart !== qcEnd ? ' -> ' + qcEnd : ''));
+                }
+                lines.push('');
+              }
+
+              lines.push('Note:');
+              lines.push('- Dữ liệu đồng bộ từ file Excel: ' + file.name);
+
+              rawText = lines.join('\n');
+              saveRawText(rawText);
+              parsedData = parseTimeline(rawText);
+              autoComputeTimelineRange();
+              saveConfig(config);
+              renderGantt();
+              if (window.syncToFirebase) window.syncToFirebase('Import Excel Tracking (' + file.name + ')');
+              showToast('✅ Đã import thành công ' + projCount + ' dự án từ file Excel!');
+            } catch (err) {
+              console.error(err);
+              showToast('⚠️ Lỗi khi đọc file Excel: ' + err.message);
+            }
+          };
+          reader.readAsArrayBuffer(file);
+        }
+
+        function exportToExcel() {
+          if (typeof XLSX === 'undefined') {
+            showToast('⚠️ Thư viện SheetJS chưa sẵn sàng!');
+            return;
+          }
+
+          var wsData = [
+            // Row 1 (Header level 1)
+            ['Studio', 'Project', 'Status', 'Asset EN?', 'Timeline', '', '', '', '', '', '', '', '', '', 'Ready For Production', 'Note'],
+            // Row 2 (Header level 2)
+            ['', '', '', '', 'Localization', '', 'BE', '', 'FE', '', 'BO Tool', '', 'Testing & Fix bug', '', '', ''],
+            // Row 3 (Header level 3)
+            ['', '', '', '', 'Start Date', 'End Date', 'Start Date', 'End Date', 'Start Date', 'End Date', 'Start Date', 'End Date', 'Start Date', 'End Date', '', '']
+          ];
+
+          var projects = (parsedData && parsedData.projects) ? parsedData.projects : [];
+          projects.forEach(function (proj) {
+            var stageDates = {
+              loc: { start: 'N/A', end: 'N/A' },
+              be: { start: 'N/A', end: 'N/A' },
+              fe: { start: 'N/A', end: 'N/A' },
+              plbo: { start: 'N/A', end: 'N/A' },
+              qc: { start: 'N/A', end: 'N/A' }
+            };
+
+            (proj.tasks || []).forEach(function (t) {
+              var s = t.startDate || (t.startDay ? formatDateStr(t.startDay, config.month, config.year) : 'N/A');
+              var e = t.endDate || (t.endDay ? formatDateStr(t.endDay, config.month, config.year) : 'N/A');
+              var lowTitle = (t.title || '').toLowerCase();
+              if (t.stageType === 'asset' || lowTitle.includes('asset') || lowTitle.includes('sound') || lowTitle.includes('localization')) {
+                stageDates.loc = { start: s, end: e };
+              } else if (t.stageType === 'be') {
+                stageDates.be = { start: s, end: e };
+              } else if (t.stageType === 'fe') {
+                stageDates.fe = { start: s, end: e };
+              } else if (t.stageType === 'plbo' || lowTitle.includes('bo') || lowTitle.includes('pl')) {
+                stageDates.plbo = { start: s, end: e };
+              } else if (t.stageType === 'qc' || lowTitle.includes('testing') || lowTitle.includes('qc') || lowTitle.includes('fix bug')) {
+                stageDates.qc = { start: s, end: e };
+              }
+            });
+
+            var hasAsset = stageDates.loc.start !== 'N/A' ? 0 : 1;
+            var row = [
+              proj.studio || '',
+              (proj.code ? proj.code + ' - ' : '') + proj.name,
+              proj.projectStatus || (proj.status === 'off-track' ? 'Delayed' : 'Development, Testing'),
+              hasAsset,
+              stageDates.loc.start, stageDates.loc.end,
+              stageDates.be.start, stageDates.be.end,
+              stageDates.fe.start, stageDates.fe.end,
+              stageDates.plbo.start, stageDates.plbo.end,
+              stageDates.qc.start, stageDates.qc.end,
+              proj.rfpDate || config.rtdDate || '',
+              proj.note || ''
+            ];
+            wsData.push(row);
+          });
+
+          var ws = XLSX.utils.aoa_to_sheet(wsData);
+
+          // Header Merges matching template
+          ws['!merges'] = [
+            { s: { r: 0, c: 0 }, e: { r: 2, c: 0 } }, // Studio
+            { s: { r: 0, c: 1 }, e: { r: 2, c: 1 } }, // Project
+            { s: { r: 0, c: 2 }, e: { r: 2, c: 2 } }, // Status
+            { s: { r: 0, c: 3 }, e: { r: 2, c: 3 } }, // Asset EN?
+            { s: { r: 0, c: 4 }, e: { r: 0, c: 13 } }, // Timeline (merge cols E to N)
+            { s: { r: 1, c: 4 }, e: { r: 1, c: 5 } }, // Localization
+            { s: { r: 1, c: 6 }, e: { r: 1, c: 7 } }, // BE
+            { s: { r: 1, c: 8 }, e: { r: 1, c: 9 } }, // FE
+            { s: { r: 1, c: 10 }, e: { r: 1, c: 11 } }, // BO Tool
+            { s: { r: 1, c: 12 }, e: { r: 1, c: 13 } }, // Testing & Fix bug
+            { s: { r: 0, c: 14 }, e: { r: 2, c: 14 } }, // Ready For Production
+            { s: { r: 0, c: 15 }, e: { r: 2, c: 15 } }  // Note
+          ];
+
+          // Column widths
+          ws['!cols'] = [
+            { wch: 14 }, // Studio
+            { wch: 32 }, // Project
+            { wch: 22 }, // Status
+            { wch: 12 }, // Asset EN?
+            { wch: 13 }, { wch: 13 }, // Loc
+            { wch: 13 }, { wch: 13 }, // BE
+            { wch: 13 }, { wch: 13 }, // FE
+            { wch: 13 }, { wch: 13 }, // BO Tool
+            { wch: 13 }, { wch: 13 }, // Testing
+            { wch: 22 }, // Ready For Production
+            { wch: 28 }  // Note
+          ];
+
+          var wb = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(wb, ws, 'Brazil Anime Batch');
+
+          var fileName = '[Delivery] Tracking Timeline_export_' + new Date().toISOString().slice(0, 10) + '.xlsx';
+          XLSX.writeFile(wb, fileName);
+          showToast('✅ Đã xuất file Excel chuẩn: ' + fileName);
+        }
+
+        on('btn-import-excel', 'click', function () {
+          var input = document.getElementById('excel-file-input');
+          if (input) input.click();
+        });
+
+        on('excel-file-input', 'change', function (e) {
+          if (e.target.files && e.target.files[0]) {
+            handleExcelUpload(e.target.files[0]);
+            e.target.value = '';
+          }
+        });
+
+        on('btn-export-excel', 'click', function () {
+          exportToExcel();
         });
 
         // Modal triggers
