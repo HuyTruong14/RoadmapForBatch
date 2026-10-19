@@ -270,6 +270,100 @@
       color: var(--accent);
     }
 
+    /* ROLE-BASED ACCESS CONTROL (Guest vs Admin) */
+    body.is-guest .admin-only {
+      display: none !important;
+    }
+    body.is-admin .guest-only {
+      display: none !important;
+    }
+
+    .role-badge-container {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .admin-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      background: rgba(16, 185, 129, 0.12);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .admin-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 6px rgba(16, 185, 129, 0.7);
+    }
+
+    .btn-login-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 11px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-login-trigger:hover {
+      background: var(--surface);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .btn-logout {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-muted);
+      cursor: pointer;
+      margin-left: 4px;
+      transition: all 0.15s ease;
+    }
+    .btn-logout:hover {
+      color: #ef4444;
+      border-color: rgba(239, 68, 68, 0.4);
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .login-error {
+      color: #ef4444;
+      font-size: 12px;
+      font-weight: 500;
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .login-error.hidden {
+      display: none;
+    }
+
+    @keyframes shakeModal {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+    .shake {
+      animation: shakeModal 0.35s ease-in-out;
+    }
+
     /* BUTTONS */
     .btn {
       display: inline-flex;
@@ -1121,9 +1215,9 @@
         </div>
       </div>
 
-      <!-- Header Action Buttons (Left to Right: Cloud Status, Last Edit, Refresh, Settings, Builder, Edit Source, Copy, Share, Export) -->
+      <!-- Header Action Buttons (Guest sees view/export; Admin sees all operation tools) -->
       <div class="header-actions">
-        <!-- Real-time Cloud Sync Badge & Refresh -->
+        <!-- Real-time Cloud Sync Badge -->
         <div id="cloud-status-badge" class="cloud-status synced" title="Real-time Team Cloud Sync (Firebase)">
           <span class="cloud-dot"></span>
           <span id="cloud-status-text">Cloud Synced</span>
@@ -1135,35 +1229,45 @@
           <span id="last-edit-text">Đang tải lịch sử...</span>
         </div>
 
-        <button id="btn-cloud-refresh" class="btn btn-icon" title="Force refresh latest data from Cloud">
+        <!-- Role Badge & Admin Login/Logout Switcher -->
+        <div id="role-container" class="role-badge-container">
+          <button id="btn-open-login" class="btn-login-trigger guest-only" title="Đăng nhập Admin để thao tác chỉnh sửa">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <span>Admin Login</span>
+          </button>
+          <div id="role-admin-box" class="admin-pill admin-only" style="display: none;">
+            <span class="admin-dot"></span>
+            <span>Admin Mode</span>
+            <button id="btn-logout" class="btn-logout" title="Thoát quyền Admin về chế độ Guest">Thoát</button>
+          </div>
+        </div>
+
+        <!-- Admin-Only Operations -->
+        <button id="btn-cloud-refresh" class="btn btn-icon admin-only" title="Force refresh latest data from Cloud">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
         </button>
 
-        <button id="btn-settings" class="btn" title="Configure dates, month, and title">
+        <button id="btn-settings" class="btn admin-only" title="Configure dates, month, and title">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
           Settings
         </button>
 
-        <button id="btn-builder" class="btn btn-primary" title="Open visual form builder">
+        <button id="btn-builder" class="btn btn-primary admin-only" title="Open visual form builder">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
           Builder
         </button>
 
-        <button id="btn-source" class="btn" title="Edit source timeline text">
+        <button id="btn-source" class="btn admin-only" title="Edit source timeline text">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
           Edit Source
         </button>
 
-        <button id="btn-copy" class="btn" title="Copy Markdown summary">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-          Copy
-        </button>
-
-        <button id="btn-share" class="btn" title="Share live Roadmap link with colleagues">
+        <button id="btn-share" class="btn admin-only" title="Share live Roadmap link with colleagues">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
           Share Link
         </button>
 
+        <!-- General Roadmap Utilities (Available to both Guest and Admin) -->
         <button id="btn-export" class="btn" title="Export standalone HTML file">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
           Export
@@ -1406,6 +1510,35 @@
     </div>
   </div>
 
+  <!-- MODAL: ADMIN LOGIN -->
+  <div class="modal-overlay" id="modal-admin-login">
+    <div class="modal-panel" style="max-width: 400px;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:18px;">🔐</span>
+          <h2>Admin Authentication</h2>
+        </div>
+        <button class="btn btn-icon btn-close-modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 14px; line-height: 1.5;">
+          Vui lòng nhập mật khẩu Admin để truy cập các tính năng cấu hình và chỉnh sửa Roadmap.
+        </p>
+        <div class="form-group">
+          <label for="admin-pass-input">Mật khẩu Admin</label>
+          <input type="password" id="admin-pass-input" placeholder="Nhập mật khẩu Admin..." autocomplete="current-password">
+          <div id="admin-login-error" class="login-error hidden">
+            <span>⚠️ Mật khẩu không chính xác! Vui lòng thử lại.</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-close-modal">Hủy</button>
+        <button id="btn-admin-submit" class="btn btn-primary">Xác nhận</button>
+      </div>
+    </div>
+  </div>
+
   <!-- TOAST NOTIFICATION -->
   <div class="toast-container" id="toast">
     <span>Notification</span>
@@ -1424,7 +1557,7 @@
         year: 2026,
         startDay: 13,
         endDay: 30,
-        todayOverride: 16
+        todayOverride: 0 // 0 = Auto-detect realtime today date
       };
 
       // 2. STAGE CONFIGURATION (Colors & Labels)
@@ -1493,6 +1626,7 @@ Note:
 - Timeline QC chưa bao gồm scope test migration. Nếu có thì phát sinh sẽ + tầm 0.5day - 1day/ 1 con (confirm vào 16.10)`;
 
       // 4. APPLICATION STATE
+      var userRole = localStorage.getItem('roadmap_user_role') || 'guest';
       var config = loadConfig();
       var rawText = loadRawText();
       var parsedData = { projects: [], notes: [] };
@@ -1501,11 +1635,42 @@ Note:
       var areAllCollapsed = false;
       var builderProjects = [];
 
+      // Safe Role Management
+      function applyUserRole(role) {
+        userRole = (role === 'admin') ? 'admin' : 'guest';
+        try {
+          localStorage.setItem('roadmap_user_role', userRole);
+        } catch (e) {}
+
+        if (userRole === 'admin') {
+          document.body.classList.remove('is-guest');
+          document.body.classList.add('is-admin');
+          var admBox = document.getElementById('role-admin-box');
+          if (admBox) admBox.style.display = 'inline-flex';
+          var gstBtn = document.getElementById('btn-open-login');
+          if (gstBtn) gstBtn.style.display = 'none';
+        } else {
+          document.body.classList.remove('is-admin');
+          document.body.classList.add('is-guest');
+          var admBox = document.getElementById('role-admin-box');
+          if (admBox) admBox.style.display = 'none';
+          var gstBtn = document.getElementById('btn-open-login');
+          if (gstBtn) gstBtn.style.display = 'inline-flex';
+        }
+      }
+
       // 5. LOCAL STORAGE UTILITIES (SAFE WRAPPERS)
       function loadConfig() {
         try {
           var saved = localStorage.getItem('roadmap_config');
-          if (saved) return Object.assign({}, DEFAULT_CONFIG, JSON.parse(saved));
+          if (saved) {
+            var parsed = JSON.parse(saved);
+            // Migrate legacy hardcoded test override 16 to auto-detect 0
+            if (parsed.todayOverride === 16) {
+              parsed.todayOverride = 0;
+            }
+            return Object.assign({}, DEFAULT_CONFIG, parsed);
+          }
         } catch (e) {
           console.warn('Failed to load roadmap_config', e);
         }
@@ -1826,8 +1991,18 @@ Note:
           return matchesFilter && matchesSearch;
         });
 
-        // Determine Today column
-        var todayDay = config.todayOverride > 0 ? config.todayOverride : new Date().getDate();
+        // Determine Realtime Today (Dynamic based on new Date() or admin override)
+        var now = new Date();
+        var currentRealDay = now.getDate();
+        var isCurrentMonthYear = (now.getFullYear() === config.year && (now.getMonth() + 1) === config.month);
+
+        var activeTodayDay = null;
+        if (config.todayOverride > 0) {
+          activeTodayDay = config.todayOverride;
+        } else if (isCurrentMonthYear) {
+          activeTodayDay = currentRealDay;
+        }
+
         var dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         var monthIdx = config.month - 1;
 
@@ -1836,7 +2011,7 @@ Note:
         workingDays.forEach(function (d) {
           var dateObj = new Date(config.year, monthIdx, d);
           var dayName = dayNames[dateObj.getDay()];
-          var isToday = (d === todayDay);
+          var isToday = (activeTodayDay !== null && d === activeTodayDay);
 
           headerColsHtml += '<div class="day-col-header ' + (isToday ? 'is-today' : '') + '">' +
             '<div class="day-name">' + dayName + '</div>' +
@@ -1929,8 +2104,15 @@ Note:
           '</div>';
         });
 
-        // Assemble Entire Table with Header & Continuous Today vertical line
-        var todayPosPercent = calcLeft(workingDays, todayDay) + (calcWidth(workingDays, todayDay, todayDay) / 2);
+        // Assemble Entire Table with Header & Continuous Today vertical line (only if today is within working days)
+        var todayLineOverlayHtml = '';
+        if (activeTodayDay !== null && workingDays.indexOf(activeTodayDay) !== -1) {
+          var todayPosPercent = calcLeft(workingDays, activeTodayDay) + (calcWidth(workingDays, activeTodayDay, activeTodayDay) / 2);
+          todayLineOverlayHtml = '<!-- Continuous Today Vertical Line -->' +
+            '<div class="today-line-overlay" style="left: calc(380px + (100% - 380px) * (' + todayPosPercent + ' / 100));">' +
+              '<div class="today-pin">TODAY (' + activeTodayDay + '.' + config.month + ')</div>' +
+            '</div>';
+        }
 
         container.innerHTML = '<!-- HEADER -->' +
           '<div class="timeline-header">' +
@@ -1944,10 +2126,7 @@ Note:
           '</div>' +
           '<!-- ROWS -->' +
           '<div style="position:relative;">' +
-            '<!-- Continuous Today Vertical Line -->' +
-            '<div class="today-line-overlay" style="left: calc(380px + (100% - 380px) * (' + todayPosPercent + ' / 100));">' +
-              '<div class="today-pin">TODAY</div>' +
-            '</div>' +
+            todayLineOverlayHtml +
             rowsHtml +
           '</div>';
 
@@ -1965,6 +2144,10 @@ Note:
 
       // 12. MODAL CONTROLLERS
       function openModal(id) {
+        // Enforce guest view-only mode: only admin can open settings/builder/source
+        if (userRole !== 'admin' && id !== 'modal-admin-login' && id !== 'modal-history') {
+          id = 'modal-admin-login';
+        }
         document.querySelectorAll('.modal-overlay').forEach(function (m) { m.classList.remove('active'); });
         var target = document.getElementById(id);
         if (target) target.classList.add('active');
@@ -2231,6 +2414,9 @@ Note:
         }
 
         function initFirebaseSync() {
+          if (typeof IS_EXPORTED_STATIC !== 'undefined' && IS_EXPORTED_STATIC) {
+            return;
+          }
           if (typeof firebase === 'undefined') {
             console.warn('Firebase SDK not available, running in local-first mode');
             setCloudStatus('offline', 'Local Only');
@@ -2261,6 +2447,7 @@ Note:
 
                 var changed = false;
                 if (val.config) {
+                  if (val.config.todayOverride === 16) val.config.todayOverride = 0;
                   config = Object.assign({}, DEFAULT_CONFIG, val.config);
                   saveConfig(config);
                   changed = true;
@@ -2290,6 +2477,7 @@ Note:
         }
 
         window.syncToFirebase = function (action) {
+          if (userRole !== 'admin') return; // Guest mode cannot write to Cloud
           if (!roadmapRef) return;
           setCloudStatus('syncing', 'Syncing...');
           var now = Date.now();
@@ -2324,6 +2512,7 @@ Note:
             var val = snapshot.val();
             if (val) {
               if (val.config) {
+                if (val.config.todayOverride === 16) val.config.todayOverride = 0;
                 config = Object.assign({}, DEFAULT_CONFIG, val.config);
                 saveConfig(config);
               }
@@ -2404,8 +2593,75 @@ Note:
           checkAndLoadSharedHash();
         });
 
+        // Event listener binding helper
+        function on(id, ev, fn) {
+          var el = document.getElementById(id);
+          if (el) el.addEventListener(ev, fn);
+        }
+
+        // Initialize User Role (Guest by default, Admin with pass 1254)
+        applyUserRole(userRole);
+
+        // Admin Authentication Listeners
+        on('btn-open-login', 'click', function () {
+          var passInput = document.getElementById('admin-pass-input');
+          if (passInput) passInput.value = '';
+          var err = document.getElementById('admin-login-error');
+          if (err) err.classList.add('hidden');
+          openModal('modal-admin-login');
+          setTimeout(function () {
+            if (passInput) passInput.focus();
+          }, 100);
+        });
+
+        function handleAdminLogin() {
+          var input = document.getElementById('admin-pass-input');
+          var val = input ? (input.value || '').trim() : '';
+          if (val === '1254') {
+            applyUserRole('admin');
+            closeModals();
+            showToast('🔓 Đã kích hoạt quyền Admin thành công!');
+          } else {
+            var err = document.getElementById('admin-login-error');
+            if (err) err.classList.remove('hidden');
+            var panel = document.querySelector('#modal-admin-login .modal-panel');
+            if (panel) {
+              panel.classList.remove('shake');
+              void panel.offsetWidth;
+              panel.classList.add('shake');
+            }
+            if (input) input.select();
+          }
+        }
+
+        on('btn-admin-submit', 'click', handleAdminLogin);
+        var adminInput = document.getElementById('admin-pass-input');
+        if (adminInput) {
+          adminInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleAdminLogin();
+            }
+          });
+        }
+
+        on('btn-logout', 'click', function () {
+          applyUserRole('guest');
+          showToast('🔒 Đã chuyển về chế độ Guest (Chỉ xem).');
+        });
+
+        // Realtime Today Interval Checker (updates automatically across midnight)
+        var lastRenderedDate = new Date().getDate();
+        setInterval(function () {
+          var currentDate = new Date().getDate();
+          if (config.todayOverride === 0 && currentDate !== lastRenderedDate) {
+            lastRenderedDate = currentDate;
+            renderGantt();
+          }
+        }, 60000);
+
         // Theme Toggle
-        document.getElementById('btn-theme-toggle').addEventListener('click', function () {
+        on('btn-theme-toggle', 'click', function () {
           var current = document.documentElement.getAttribute('data-theme');
           var isDark = current === 'dark' || (!current && window.matchMedia('(prefers-color-scheme: dark)').matches);
           var nextTheme = isDark ? 'light' : 'dark';
@@ -2415,10 +2671,13 @@ Note:
         });
 
         // Search Input
-        document.getElementById('search-input').addEventListener('input', function (e) {
-          searchQuery = e.target.value.trim();
-          renderGantt();
-        });
+        var searchEl = document.getElementById('search-input');
+        if (searchEl) {
+          searchEl.addEventListener('input', function (e) {
+            searchQuery = e.target.value.trim();
+            renderGantt();
+          });
+        }
 
         // Filter Tabs
         document.querySelectorAll('.filter-tab').forEach(function (tab) {
@@ -2431,14 +2690,15 @@ Note:
         });
 
         // Collapse / Expand All
-        document.getElementById('btn-toggle-all').addEventListener('click', function () {
+        on('btn-toggle-all', 'click', function () {
           areAllCollapsed = !areAllCollapsed;
-          document.getElementById('toggle-all-label').textContent = areAllCollapsed ? 'Expand All' : 'Collapse All';
+          var lbl = document.getElementById('toggle-all-label');
+          if (lbl) lbl.textContent = areAllCollapsed ? 'Expand All' : 'Collapse All';
           renderGantt();
         });
 
-        // Share Link with Colleagues
-        document.getElementById('btn-share').addEventListener('click', function () {
+        // Share Link with Colleagues (Admin Only)
+        on('btn-share', 'click', function () {
           try {
             var payload = {
               config: config,
@@ -2462,49 +2722,64 @@ Note:
           }
         });
 
-        // Copy Markdown Summary
-        document.getElementById('btn-copy').addEventListener('click', function () {
-          var md = '# ' + config.title + ' (RFP: Month ' + config.month + '/' + config.year + ')\n\n' +
-            '| Code | Project Name | Status | RFP | Deliverables Timeline |\n' +
-            '| :--- | :--- | :---: | :---: | :--- |\n';
+        // Export Standalone Clean HTML (Roadmap view only, no operation buttons or modals)
+        on('btn-export', 'click', function () {
+          var docClone = document.documentElement.cloneNode(true);
 
-          parsedData.projects.forEach(function (p) {
-            var st = p.status === 'on-track' ? '✅ On-track' : '⚠️ Delayed';
-            var span = p.tasks.length > 0 ? (p.tasks[0].startDay + '.' + config.month + ' ➔ ' + p.tasks[p.tasks.length - 1].endDay + '.' + config.month) : '-';
-            md += '| ' + p.code + ' | ' + p.name + ' | ' + st + ' | ' + p.rfpDate + ' | ' + span + ' |\n';
-          });
-
-          if (parsedData.notes.length > 0) {
-            md += '\n### Notes:\n' + parsedData.notes.map(function (n) { return '- ' + n; }).join('\n');
+          // 1. Clean header actions: strip operational buttons and role controls, keeping only theme toggle
+          var headerActions = docClone.querySelector('.header-actions');
+          if (headerActions) {
+            var themeToggle = headerActions.querySelector('#btn-theme-toggle');
+            headerActions.innerHTML = '';
+            if (themeToggle) {
+              headerActions.appendChild(themeToggle);
+            }
           }
 
-          navigator.clipboard.writeText(md).then(function () {
-            showToast('Markdown summary copied to clipboard!');
+          // 2. Remove all modal overlays completely
+          docClone.querySelectorAll('.modal-overlay').forEach(function (el) {
+            el.remove();
           });
-        });
 
-        // Export Standalone HTML (Bakes active roadmap and config into exported file)
-        document.getElementById('btn-export').addEventListener('click', function () {
-          var fullHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+          // 3. Remove cloud badges, last edit badges, copy buttons, admin tools
+          docClone.querySelectorAll('#cloud-status-badge, #last-edit-badge, #role-container, .admin-only, .guest-only, #btn-copy').forEach(function (el) {
+            el.remove();
+          });
 
-          // 1. Replace DEFAULT_CONFIG with the current active config in the exported file
+          // 4. Remove external Firebase scripts
+          docClone.querySelectorAll('script[src*="firebase"]').forEach(function (el) {
+            el.remove();
+          });
+
+          // 5. Clean body classes
+          var cloneBody = docClone.querySelector('body');
+          if (cloneBody) {
+            cloneBody.classList.remove('is-guest', 'is-admin');
+          }
+
+          var fullHtml = '<!DOCTYPE html>\n' + docClone.outerHTML;
+
+          // 6. Bake active config and rawText into exported file
           var configJson = JSON.stringify(config, null, 2);
           fullHtml = fullHtml.replace(/var DEFAULT_CONFIG = \{[\s\S]*?\};/, 'var DEFAULT_CONFIG = ' + configJson + ';');
 
-          // 2. Replace SAMPLE_TIMELINE with the current active rawText
           var safeRawText = rawText.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$');
           fullHtml = fullHtml.replace(/var SAMPLE_TIMELINE = `[\s\S]*?`;/, 'var SAMPLE_TIMELINE = `' + safeRawText + '`;');
 
-          // 3. Ensure the exported file initializes with the baked-in latest data
           fullHtml = fullHtml.replace(
             /var config = loadConfig\(\);[\s\S]*?var rawText = loadRawText\(\);/,
             'var config = Object.assign({}, DEFAULT_CONFIG);\n      var rawText = SAMPLE_TIMELINE;'
           );
 
-          // 4. In exported file, reset the shared hash check so it does not load stale hash
           fullHtml = fullHtml.replace(
             /var wasSharedLoaded = checkAndLoadSharedHash\(\);/,
             'var wasSharedLoaded = false;'
+          );
+
+          // Declare static exported flag in script
+          fullHtml = fullHtml.replace(
+            /'use strict';/,
+            "'use strict';\n      var IS_EXPORTED_STATIC = true;"
           );
 
           var blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
@@ -2518,21 +2793,22 @@ Note:
           a.click();
           document.body.removeChild(a);
           URL.revokeObjectURL(url);
-          showToast('✅ Roadmap exported with latest data: ' + filename);
+          showToast('✅ Đã xuất file HTML roadmap gọn gàng (chỉ roadmap, không kèm nút thao tác): ' + filename);
         });
 
         // Modal triggers
-        document.getElementById('btn-settings').addEventListener('click', function () {
+        on('btn-settings', 'click', function () {
           populateSettingsModal();
           openModal('modal-settings');
         });
 
-        document.getElementById('btn-source').addEventListener('click', function () {
-          document.getElementById('raw-source-textarea').value = rawText;
+        on('btn-source', 'click', function () {
+          var txt = document.getElementById('raw-source-textarea');
+          if (txt) txt.value = rawText;
           openModal('modal-source');
         });
 
-        document.getElementById('btn-builder').addEventListener('click', function () {
+        on('btn-builder', 'click', function () {
           importCurrentToBuilder();
           openModal('modal-builder');
         });
@@ -2548,9 +2824,9 @@ Note:
         });
 
         // Save Settings
-        document.getElementById('btn-save-settings').addEventListener('click', function () {
-          config.title = document.getElementById('cfg-title').value.trim() || DEFAULT_CONFIG.title;
-          config.subtitle = document.getElementById('cfg-subtitle').value.trim() || DEFAULT_CONFIG.subtitle;
+        on('btn-save-settings', 'click', function () {
+          config.title = (document.getElementById('cfg-title').value || '').trim() || DEFAULT_CONFIG.title;
+          config.subtitle = (document.getElementById('cfg-subtitle').value || '').trim() || DEFAULT_CONFIG.subtitle;
           config.month = parseInt(document.getElementById('cfg-month').value, 10) || DEFAULT_CONFIG.month;
           config.year = parseInt(document.getElementById('cfg-year').value, 10) || DEFAULT_CONFIG.year;
           config.startDay = parseInt(document.getElementById('cfg-start-day').value, 10) || DEFAULT_CONFIG.startDay;
@@ -2571,55 +2847,63 @@ Note:
         });
 
         // View Last Edit Details Modal
-        document.getElementById('last-edit-badge').addEventListener('click', function () {
+        on('last-edit-badge', 'click', function () {
           if (lastAuditData) {
             var date = new Date(lastAuditData.updatedAt || Date.now());
             var timeStr = ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2) + ':' + ('0' + date.getSeconds()).slice(-2);
             var dateStr = ('0' + date.getDate()).slice(-2) + '/' + ('0' + (date.getMonth() + 1)).slice(-2) + '/' + date.getFullYear();
-            document.getElementById('audit-author').textContent = lastAuditData.updatedBy || 'Chưa rõ';
-            document.getElementById('audit-time').textContent = timeStr + ' ngày ' + dateStr;
-            document.getElementById('audit-action').textContent = lastAuditData.action || 'Chỉnh sửa timeline';
+            var authEl = document.getElementById('audit-author');
+            if (authEl) authEl.textContent = lastAuditData.updatedBy || 'Chưa rõ';
+            var timeEl = document.getElementById('audit-time');
+            if (timeEl) timeEl.textContent = timeStr + ' ngày ' + dateStr;
+            var actEl = document.getElementById('audit-action');
+            if (actEl) actEl.textContent = lastAuditData.action || 'Chỉnh sửa timeline';
           } else {
-            document.getElementById('audit-author').textContent = 'Chưa có thông tin';
-            document.getElementById('audit-time').textContent = '-';
-            document.getElementById('audit-action').textContent = '-';
+            var authEl = document.getElementById('audit-author');
+            if (authEl) authEl.textContent = 'Chưa có thông tin';
+            var timeEl = document.getElementById('audit-time');
+            if (timeEl) timeEl.textContent = '-';
+            var actEl = document.getElementById('audit-action');
+            if (actEl) actEl.textContent = '-';
           }
           openModal('modal-history');
         });
 
         // Load Sample Data in Source Modal
-        document.getElementById('btn-load-sample').addEventListener('click', function () {
-          document.getElementById('raw-source-textarea').value = SAMPLE_TIMELINE;
+        on('btn-load-sample', 'click', function () {
+          var txt = document.getElementById('raw-source-textarea');
+          if (txt) txt.value = SAMPLE_TIMELINE;
         });
 
         // Apply Source Raw Text
-        document.getElementById('btn-apply-source').addEventListener('click', function () {
-          var txt = document.getElementById('raw-source-textarea').value;
-          rawText = txt;
-          saveRawText(rawText);
-          parsedData = parseTimeline(rawText);
-          render();
-          closeModals();
-          showToast('Source parsed and rendered!');
-          if (window.syncToFirebase) window.syncToFirebase('Source Updated');
+        on('btn-apply-source', 'click', function () {
+          var txt = document.getElementById('raw-source-textarea');
+          if (txt) {
+            rawText = txt.value;
+            saveRawText(rawText);
+            parsedData = parseTimeline(rawText);
+            render();
+            closeModals();
+            showToast('Source parsed and rendered!');
+            if (window.syncToFirebase) window.syncToFirebase('Source Updated');
+          }
         });
 
         // Builder Actions
-        document.getElementById('btn-builder-import').addEventListener('click', function () {
+        on('btn-builder-import', 'click', function () {
           importCurrentToBuilder();
           showToast('Imported current timeline data');
         });
 
-        document.getElementById('btn-builder-clear').addEventListener('click', function () {
+        on('btn-builder-clear', 'click', function () {
           builderProjects = [createEmptyBuilderProject(1)];
           renderBuilder();
         });
 
-        document.getElementById('btn-builder-add-proj').addEventListener('click', function () {
+        on('btn-builder-add-proj', 'click', function () {
           var nextNum = builderProjects.length + 1;
           builderProjects.push(createEmptyBuilderProject(nextNum));
           renderBuilder();
-          // Focus code input of new project
           var cards = document.querySelectorAll('.builder-card');
           var lastCard = cards[cards.length - 1];
           if (lastCard) {
@@ -2628,7 +2912,7 @@ Note:
           }
         });
 
-        document.getElementById('btn-builder-apply').addEventListener('click', function () {
+        on('btn-builder-apply', 'click', function () {
           var generatedText = builderToRawText();
           rawText = generatedText;
           saveRawText(rawText);
@@ -2640,7 +2924,7 @@ Note:
         });
 
         // Manual Cloud Refresh Button
-        document.getElementById('btn-cloud-refresh').addEventListener('click', function () {
+        on('btn-cloud-refresh', 'click', function () {
           if (window.forceRefreshFromCloud) window.forceRefreshFromCloud();
         });
       }
