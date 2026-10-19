@@ -1193,11 +1193,23 @@
       font-size: 10.5px;
       font-weight: 500;
     }
-    .stage-schedule-box input[type="number"] {
-      width: 44px;
-      padding: 2px 4px;
+    .b-rtd {
+      width: 92px;
+      padding: 3px 5px;
       text-align: center;
       font-size: 11.5px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .stage-schedule-box input[type="text"],
+    .stage-schedule-box input[type="number"] {
+      width: 86px;
+      padding: 2px 4px;
+      text-align: center;
+      font-size: 11px;
       font-weight: 600;
       border: 1px solid var(--border);
       border-radius: 4px;
@@ -1417,7 +1429,7 @@
         <div class="kpi-card">
           <div class="kpi-icon" style="background: rgba(245, 158, 11, 0.15); color: var(--warning);">🎯</div>
           <div class="kpi-info">
-            <div class="kpi-label">Base RFP</div>
+            <div class="kpi-label">Ready to Delivery (RTD)</div>
             <div class="kpi-value" id="kpi-rfp" style="color: var(--warning);">-</div>
           </div>
         </div>
@@ -1490,31 +1502,12 @@
           <label for="cfg-subtitle">Subtitle</label>
           <input type="text" id="cfg-subtitle">
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="cfg-month">Month (1–12)</label>
-            <input type="number" id="cfg-month" min="1" max="12">
-          </div>
-          <div class="form-group">
-            <label for="cfg-year">Year</label>
-            <input type="number" id="cfg-year" min="2020" max="2050">
-          </div>
-        </div>
-        <div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:10px 12px; margin-bottom:12px;">
-          <label style="font-weight:700; font-size:12px; margin-bottom:6px; display:flex; align-items:center; gap:6px;">
-            <span>🗓️</span> Timeline Schedule (Khung thời gian từ ngày tới ngày)
+        <div class="form-group">
+          <label for="cfg-rtd-date" style="font-weight:700; display:flex; align-items:center; gap:6px;">
+            <span>🎯</span> Ready to Delivery (RTD): dd/mm/yyyy
           </label>
-          <div class="form-row" style="margin-bottom:0;">
-            <div class="form-group" style="margin-bottom:0;">
-              <label for="cfg-start-day" style="font-size:11px; color:var(--text-muted);">Từ ngày (Start Day)</label>
-              <input type="number" id="cfg-start-day" min="1" max="31">
-            </div>
-            <div class="form-group" style="margin-bottom:0;">
-              <label for="cfg-end-day" style="font-size:11px; color:var(--text-muted);">Tới ngày (End Day)</label>
-              <input type="number" id="cfg-end-day" min="1" max="31">
-            </div>
-          </div>
-          <small style="font-size:10.5px; color:var(--text-muted); display:block; margin-top:5px;">Timeline Gantt Chart sẽ co giãn chính xác theo ngày bắt đầu và kết thúc (hỗ trợ cả 28, 30, 31...).</small>
+          <input type="text" id="cfg-rtd-date" placeholder="dd/mm/yyyy (ví dụ: 26/10/2026)">
+          <small style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 4px;">Mốc ngày phát hành (release) game. Khung timeline Gantt Chart sẽ tự động co giãn chính xác theo mốc này và các stage.</small>
         </div>
         <div class="form-group">
           <label for="cfg-today-override">Today Override (0 = auto-detect)</label>
@@ -1605,18 +1598,10 @@
           <div class="schedule-bar-left">
             <span style="font-size:15px;">🗓️</span>
             <span style="font-weight:700; font-size:12.5px;">Timeline Schedule:</span>
-            <span style="color:var(--text-muted); font-size:11px;">(Khung thời gian tổng thể)</span>
+            <span style="color:var(--text-muted); font-size:11px;">Thiết lập mốc <strong>RTD (dd/mm/yyyy)</strong> và Schedule từng Stage dạng <strong>dd/mm/yyyy ➔ dd/mm/yyyy</strong></span>
           </div>
           <div class="schedule-bar-right">
-            <div style="display:flex; align-items:center; gap:5px; font-size:11.5px;">
-              <span style="color:var(--text-muted);">Từ ngày:</span>
-              <input type="number" id="builder-start-day" min="1" max="31" value="14">
-              <span style="color:var(--text-muted); font-weight:600;">➔</span>
-              <span style="color:var(--text-muted);">Tới ngày:</span>
-              <input type="number" id="builder-end-day" min="1" max="31" value="30">
-              <span style="color:var(--accent); font-weight:600; font-size:11px;">(Tháng <span id="builder-month-num">10</span>)</span>
-            </div>
-            <button type="button" id="btn-builder-autofit" class="btn" style="font-size:11px; padding:3px 8px;" title="Tự động co giãn theo ngày sớm nhất & muộn nhất của các Stage">⚡ Auto-Fit</button>
+            <span style="font-size:11px; color:var(--accent); font-weight:600;">⚡ Tự động co giãn timeline theo ngày của Stage & RTD</span>
           </div>
         </div>
 
@@ -1683,9 +1668,10 @@
       var DEFAULT_CONFIG = {
         title: 'Roadmap Planner',
         subtitle: 'Working-days delivery roadmap & milestone tracker',
+        rtdDate: '26/10/2026',
         month: 10,
         year: 2026,
-        startDay: 13,
+        startDay: 14,
         endDay: 30,
         todayOverride: 0 // 0 = Auto-detect realtime today date
       };
@@ -1698,7 +1684,7 @@
         qc:        { name: 'QC',        color: 'var(--stage-qc)',        bg: 'var(--stage-qc-bg)' },
         integrate: { name: 'Integrate', color: 'var(--stage-integrate)', bg: 'var(--stage-integrate-bg)' },
         asset:     { name: 'Asset',     color: 'var(--stage-asset)',     bg: 'var(--stage-asset-bg)' },
-        milestone: { name: 'RFP',       color: 'var(--stage-milestone)', bg: 'var(--stage-milestone-bg)' }
+        milestone: { name: 'RTD',       color: 'var(--stage-milestone)', bg: 'var(--stage-milestone-bg)' }
       };
 
       // 3. BUILT-IN SAMPLE RAW TIMELINE DATA
@@ -1854,12 +1840,170 @@ Note:
         }, 2500);
       }
 
+      // 7.1 DATE HELPERS (dd/mm/yyyy standard & auto timeline scaling)
+      function parseDateStr(str, defaultMonth, defaultYear) {
+        if (!str) return null;
+        str = String(str).trim();
+        var mFull = str.match(/^(\d{1,2})[\/\.-](\d{1,2})[\/\.-](\d{4})$/);
+        if (mFull) {
+          var d1 = parseInt(mFull[1], 10);
+          var m1 = parseInt(mFull[2], 10);
+          var y1 = parseInt(mFull[3], 10);
+          return { day: d1, month: m1, year: y1, dateObj: new Date(y1, m1 - 1, d1) };
+        }
+        var mShort = str.match(/^(\d{1,2})[\/\.-](\d{1,2})$/);
+        if (mShort) {
+          var d2 = parseInt(mShort[1], 10);
+          var m2 = parseInt(mShort[2], 10);
+          var y2 = defaultYear || (config && config.year) || 2026;
+          return { day: d2, month: m2, year: y2, dateObj: new Date(y2, m2 - 1, d2) };
+        }
+        var mDay = str.match(/^(\d{1,2})$/);
+        if (mDay) {
+          var d3 = parseInt(mDay[1], 10);
+          var m3 = defaultMonth || (config && config.month) || 10;
+          var y3 = defaultYear || (config && config.year) || 2026;
+          return { day: d3, month: m3, year: y3, dateObj: new Date(y3, m3 - 1, d3) };
+        }
+        return null;
+      }
+
+      function formatDateStr(day, month, year) {
+        var d = ('0' + (day || 1)).slice(-2);
+        var m = ('0' + (month || (config && config.month) || 10)).slice(-2);
+        var y = year || (config && config.year) || 2026;
+        return d + '/' + m + '/' + y;
+      }
+
+      function calcDateDiffDays(d1, d2) {
+        var p1 = parseDateStr(d1);
+        var p2 = parseDateStr(d2);
+        if (!p1 || !p2) return 1;
+        var msPerDay = 24 * 60 * 60 * 1000;
+        var diffMs = p2.dateObj.getTime() - p1.dateObj.getTime();
+        var diffDays = Math.round(diffMs / msPerDay);
+        return Math.max(1, diffDays + 1);
+      }
+
+      function extractStageDates(line, defaultMonth, defaultYear) {
+        var mFullRange = line.match(/(\d{1,2}[\/\.-]\d{1,2}[\/\.-]\d{4})\s*(?:->|-|to)\s*(\d{1,2}[\/\.-]\d{1,2}[\/\.-]\d{4})/i);
+        if (mFullRange) {
+          var p1 = parseDateStr(mFullRange[1], defaultMonth, defaultYear);
+          var p2 = parseDateStr(mFullRange[2], defaultMonth, defaultYear);
+          if (p1 && p2) {
+            return {
+              startDate: formatDateStr(p1.day, p1.month, p1.year),
+              endDate: formatDateStr(p2.day, p2.month, p2.year),
+              startDay: p1.day,
+              endDay: p2.day,
+              month: p1.month,
+              year: p1.year
+            };
+          }
+        }
+
+        var mShortRange = line.match(/(\d{1,2}[\/\.-]\d{1,2})\s*(?:->|-|to)\s*(\d{1,2}[\/\.-]\d{1,2})/i);
+        if (mShortRange) {
+          var ps1 = parseDateStr(mShortRange[1], defaultMonth, defaultYear);
+          var ps2 = parseDateStr(mShortRange[2], defaultMonth, defaultYear);
+          if (ps1 && ps2) {
+            return {
+              startDate: formatDateStr(ps1.day, ps1.month, ps1.year),
+              endDate: formatDateStr(ps2.day, ps2.month, ps2.year),
+              startDay: ps1.day,
+              endDay: ps2.day,
+              month: ps1.month,
+              year: ps1.year
+            };
+          }
+        }
+
+        var mFullSingle = line.match(/(\d{1,2}[\/\.-]\d{1,2}[\/\.-]\d{4})/);
+        if (mFullSingle) {
+          var pf = parseDateStr(mFullSingle[1], defaultMonth, defaultYear);
+          if (pf) {
+            var f = formatDateStr(pf.day, pf.month, pf.year);
+            return {
+              startDate: f,
+              endDate: f,
+              startDay: pf.day,
+              endDay: pf.day,
+              month: pf.month,
+              year: pf.year
+            };
+          }
+        }
+
+        var mShortSingle = line.match(/(\d{1,2}[\/\.-]\d{1,2})/);
+        if (mShortSingle) {
+          var pss = parseDateStr(mShortSingle[1], defaultMonth, defaultYear);
+          if (pss) {
+            var f2 = formatDateStr(pss.day, pss.month, pss.year);
+            return {
+              startDate: f2,
+              endDate: f2,
+              startDay: pss.day,
+              endDay: pss.day,
+              month: pss.month,
+              year: pss.year
+            };
+          }
+        }
+
+        return null;
+      }
+
+      function autoComputeTimelineRange() {
+        var minDay = 99;
+        var maxDay = 0;
+        var detectedMonth = config.month || 10;
+        var detectedYear = config.year || 2026;
+
+        if (config.rtdDate) {
+          var pRtd = parseDateStr(config.rtdDate, detectedMonth, detectedYear);
+          if (pRtd) {
+            detectedMonth = pRtd.month;
+            detectedYear = pRtd.year;
+            minDay = Math.min(minDay, pRtd.day);
+            maxDay = Math.max(maxDay, pRtd.day);
+          }
+        }
+
+        if (parsedData && parsedData.projects) {
+          parsedData.projects.forEach(function (p) {
+            if (p.rfpDate) {
+              var pr = parseDateStr(p.rfpDate, detectedMonth, detectedYear);
+              if (pr) {
+                detectedMonth = pr.month;
+                detectedYear = pr.year;
+                minDay = Math.min(minDay, pr.day);
+                maxDay = Math.max(maxDay, pr.day);
+              }
+            }
+            (p.tasks || []).forEach(function (t) {
+              if (t.startDay) minDay = Math.min(minDay, t.startDay);
+              if (t.endDay) maxDay = Math.max(maxDay, t.endDay);
+            });
+          });
+        }
+
+        if (minDay === 99 || maxDay === 0) {
+          minDay = 14;
+          maxDay = 30;
+        }
+
+        config.month = detectedMonth;
+        config.year = detectedYear;
+        config.startDay = minDay;
+        config.endDay = maxDay;
+      }
+
       // 8. WORKING DAYS COMPUTATION (Mon–Fri default, plus active tasks and timeline boundaries)
       function computeWorkingDays() {
         var days = [];
         var monthIdx = config.month - 1;
 
-        // Collect all days touched by tasks, stages or RFP
+        // Collect all days touched by tasks, stages or RFP/RTD
         var activeDays = {};
         if (parsedData && parsedData.projects) {
           parsedData.projects.forEach(function (p) {
@@ -1938,8 +2082,8 @@ Note:
             return;
           }
 
-          // Match Project Header: "1. 9910 - Tsubasa | RFP: 26.10 | On-track"
-          var projectMatch = line.match(/^(\d+)[\.\)]\s*(\d+)\s*-\s*([^|]+)\|\s*RFP:\s*([^\s|]+)(?:\s*\|\s*(.*))?$/i);
+          // Match Project Header: "1. 9910 - Tsubasa | RTD: 26/10/2026 | On-track" or "RFP: 26.10"
+          var projectMatch = line.match(/^(\d+)[\.\)]\s*(\d+)\s*-\s*([^|]+)\|\s*(?:RTD|RFP):\s*([^\s|]+)(?:\s*\|\s*(.*))?$/i);
           if (projectMatch) {
             if (currentProject) projects.push(currentProject);
 
@@ -1952,11 +2096,17 @@ Note:
               delayDate = delayMatch[1];
             }
 
+            var rawRtd = projectMatch[4].trim();
+            var pRtd = parseDateStr(rawRtd, config.month, config.year);
+            var rtdFormatted = pRtd ? formatDateStr(pRtd.day, pRtd.month, pRtd.year) : rawRtd;
+            var rtdDay = pRtd ? pRtd.day : 26;
+
             currentProject = {
               id: projectMatch[1],
               code: projectMatch[2].trim(),
               name: projectMatch[3].trim(),
-              rfpDate: projectMatch[4].trim(),
+              rfpDate: rtdFormatted,
+              rfpDay: rtdDay,
               status: isDelayed ? 'off-track' : 'on-track',
               statusLabel: rawStatus || (isDelayed ? 'Off-track' : 'On-track'),
               delayDate: delayDate,
@@ -1981,7 +2131,7 @@ Note:
             else if (/^FE\b/i.test(cleanLine)) stageType = 'fe';
             else if (/^PL\s*,\s*BO\b/i.test(cleanLine)) stageType = 'plbo';
             else if (/^QC\b/i.test(cleanLine)) stageType = 'qc';
-            else if (/Ready for Production|Milestone|RFP/i.test(cleanLine)) stageType = 'milestone';
+            else if (/Ready for Production|Milestone|RFP|RTD/i.test(cleanLine)) stageType = 'milestone';
             else if (/Integrate|MLMC/i.test(cleanLine)) stageType = 'integrate';
             else if (/Delivery|Asset|Sound/i.test(cleanLine)) stageType = 'asset';
 
@@ -2016,38 +2166,56 @@ Note:
               title = title + ' - Execute Tcs';
             }
 
-            // Date Range Extraction (supports month flexibility e.g. .10, /10, .11, /11)
+            // Extract Stage Dates (dd/mm/yyyy -> dd/mm/yyyy or dd.mm)
+            var stageDates = extractStageDates(cleanLine, config.month, config.year);
             var startDay = null, endDay = null;
-            var dateSuffix = '(?:\\.' + mStr + '|/' + mStr + '|\\.\\d{1,2}|/\\d{1,2})';
-            var dblRegex = new RegExp('(\\d{1,2})' + dateSuffix + '\\s*-\\s*(\\d{1,2})' + dateSuffix);
-            var sglRangeRegex = new RegExp('(\\d{1,2})\\s*-\\s*(\\d{1,2})' + dateSuffix);
-            var sglRegex = new RegExp('(\\d{1,2})' + dateSuffix);
+            var startDateStr = null, endDateStr = null;
 
-            var dblMatch = cleanLine.match(dblRegex);
-            if (dblMatch) {
-              startDay = parseInt(dblMatch[1], 10);
-              endDay = parseInt(dblMatch[2], 10);
+            if (stageDates) {
+              startDay = stageDates.startDay;
+              endDay = stageDates.endDay;
+              startDateStr = stageDates.startDate;
+              endDateStr = stageDates.endDate;
             } else {
-              var sglRange = cleanLine.match(sglRangeRegex);
-              if (sglRange) {
-                startDay = parseInt(sglRange[1], 10);
-                endDay = parseInt(sglRange[2], 10);
+              // Fallback legacy day regex
+              var dateSuffix = '(?:\\.' + mStr + '|/' + mStr + '|\\.\\d{1,2}|/\\d{1,2})';
+              var dblRegex = new RegExp('(\\d{1,2})' + dateSuffix + '\\s*-\\s*(\\d{1,2})' + dateSuffix);
+              var sglRangeRegex = new RegExp('(\\d{1,2})\\s*-\\s*(\\d{1,2})' + dateSuffix);
+              var sglRegex = new RegExp('(\\d{1,2})' + dateSuffix);
+
+              var dblMatch = cleanLine.match(dblRegex);
+              if (dblMatch) {
+                startDay = parseInt(dblMatch[1], 10);
+                endDay = parseInt(dblMatch[2], 10);
               } else {
-                var sglMatch = cleanLine.match(sglRegex);
-                if (sglMatch) {
-                  startDay = parseInt(sglMatch[1], 10);
-                  endDay = parseInt(sglMatch[1], 10);
+                var sglRange = cleanLine.match(sglRangeRegex);
+                if (sglRange) {
+                  startDay = parseInt(sglRange[1], 10);
+                  endDay = parseInt(sglRange[2], 10);
+                } else {
+                  var sglMatch = cleanLine.match(sglRegex);
+                  if (sglMatch) {
+                    startDay = parseInt(sglMatch[1], 10);
+                    endDay = parseInt(sglMatch[1], 10);
+                  }
                 }
+              }
+              if (startDay !== null) {
+                startDateStr = formatDateStr(startDay, config.month, config.year);
+                endDateStr = formatDateStr(endDay || startDay, config.month, config.year);
               }
             }
 
             if (startDay !== null) {
+              var dur = calcDateDiffDays(startDateStr, endDateStr);
               currentProject.tasks.push({
                 stageType: stageType,
                 title: title || cleanLine,
+                startDate: startDateStr,
+                endDate: endDateStr,
                 startDay: startDay,
                 endDay: endDay || startDay,
-                duration: durationDays,
+                duration: dur || durationDays,
                 rawText: cleanLine,
                 isMilestone: stageType === 'milestone'
               });
@@ -2214,7 +2382,7 @@ Note:
                   '<div class="proj-title-box">' +
                     '<div><span class="code">#' + escapeHtml(proj.code) + '</span> ' +
                     '<span class="name" title="' + escapeHtml(proj.name) + '">' + escapeHtml(proj.name) + '</span></div>' +
-                    '<div class="proj-dates">RFP: <strong>' + escapeHtml(proj.rfpDate) + '</strong>' +
+                    '<div class="proj-dates">RTD: <strong>' + escapeHtml(proj.rfpDate) + '</strong>' +
                     (proj.delayDate ? ' • <span style="color:var(--danger)">Delay: ' + escapeHtml(proj.delayDate) + '</span>' : '') +
                     '</div>' +
                   '</div>' +
@@ -2231,7 +2399,7 @@ Note:
                 '<!-- Master Summary Bar -->' +
                 '<div class="master-summary-bar" style="left: ' + calcLeft(workingDays, minStart) + '%; width: ' + calcWidth(workingDays, minStart, maxEnd) + '%;">' +
                 '</div>' +
-                (rfpDay ? '<div class="rfp-diamond-marker" style="left: ' + (calcLeft(workingDays, rfpDay) + (calcWidth(workingDays, rfpDay, rfpDay) / 2)) + '%;" title="Target RFP: ' + escapeHtml(proj.rfpDate) + '"></div>' : '') +
+                (rfpDay ? '<div class="rfp-diamond-marker" style="left: ' + (calcLeft(workingDays, rfpDay) + (calcWidth(workingDays, rfpDay, rfpDay) / 2)) + '%;" title="Target RTD: ' + escapeHtml(proj.rfpDate) + '"></div>' : '') +
               '</div>' +
             '</div>' +
 
@@ -2318,10 +2486,10 @@ Note:
       function populateSettingsModal() {
         document.getElementById('cfg-title').value = config.title;
         document.getElementById('cfg-subtitle').value = config.subtitle;
-        document.getElementById('cfg-month').value = config.month;
-        document.getElementById('cfg-year').value = config.year;
-        document.getElementById('cfg-start-day').value = config.startDay;
-        document.getElementById('cfg-end-day').value = config.endDay;
+        var rtdInput = document.getElementById('cfg-rtd-date');
+        if (rtdInput) {
+          rtdInput.value = config.rtdDate || formatDateStr(26, config.month, config.year);
+        }
         document.getElementById('cfg-today-override').value = config.todayOverride;
         var myName = localStorage.getItem('roadmap_author_name') || 'Huy';
         var authorInput = document.getElementById('cfg-author-name');
@@ -2330,21 +2498,28 @@ Note:
 
       // 13. VISUAL BUILDER (FORM-BASED UI)
       function importCurrentToBuilder() {
+        var defaultRtd = config.rtdDate || formatDateStr(26, config.month, config.year);
         builderProjects = parsedData.projects.map(function (p) {
-          var rfpNum = 26;
-          var match = (p.rfpDate || '').match(/^(\d{1,2})/);
-          if (match) rfpNum = parseInt(match[1], 10);
+          var rtdStr = p.rfpDate || defaultRtd;
+          var pRtd = parseDateStr(rtdStr, config.month, config.year);
+          var rtdFormatted = pRtd ? formatDateStr(pRtd.day, pRtd.month, pRtd.year) : defaultRtd;
+          var rtdNum = pRtd ? pRtd.day : 26;
 
           return {
             id: p.id,
             code: p.code,
             name: p.name,
-            rfpDay: rfpNum,
+            rtdDate: rtdFormatted,
+            rtdDay: rtdNum,
             status: p.status,
             stages: (p.tasks || []).map(function (t) {
+              var sDate = t.startDate || formatDateStr(t.startDay || config.startDay, config.month, config.year);
+              var eDate = t.endDate || formatDateStr(t.endDay || t.startDay || config.startDay, config.month, config.year);
               return {
                 stageType: t.stageType || 'be',
                 title: t.title || '',
+                startDate: sDate,
+                endDate: eDate,
                 startDay: t.startDay || config.startDay,
                 endDay: t.endDay || t.startDay || config.startDay
               };
@@ -2356,25 +2531,22 @@ Note:
           builderProjects = [createEmptyBuilderProject(1)];
         }
         renderBuilder();
-
-        var bStartEl = document.getElementById('builder-start-day');
-        var bEndEl = document.getElementById('builder-end-day');
-        var bMonthEl = document.getElementById('builder-month-num');
-        if (bStartEl) bStartEl.value = config.startDay;
-        if (bEndEl) bEndEl.value = config.endDay;
-        if (bMonthEl) bMonthEl.textContent = config.month;
       }
 
       function createEmptyBuilderProject(num) {
+        var sDate = formatDateStr(config.startDay || 14, config.month, config.year);
+        var eDate = formatDateStr((config.startDay || 14) + 1, config.month, config.year);
+        var rtdStr = config.rtdDate || formatDateStr(26, config.month, config.year);
         return {
           id: String(num),
           code: '100' + num,
           name: 'Project ' + num,
-          rfpDay: 26,
+          rtdDate: rtdStr,
+          rtdDay: 26,
           status: 'on-track',
           stages: [
-            { stageType: 'be', title: 'BE', startDay: config.startDay, endDay: config.startDay + 1 },
-            { stageType: 'fe', title: 'FE Full Build', startDay: config.startDay + 1, endDay: config.startDay + 2 }
+            { stageType: 'be', title: 'BE', startDate: sDate, endDate: sDate, startDay: config.startDay, endDay: config.startDay },
+            { stageType: 'fe', title: 'FE Full Build', startDate: sDate, endDate: eDate, startDay: config.startDay, endDay: config.startDay + 1 }
           ]
         };
       }
@@ -2388,14 +2560,15 @@ Note:
         }).join('');
 
         container.innerHTML = builderProjects.map(function (proj, pIdx) {
+          var projRtd = proj.rtdDate || formatDateStr(proj.rtdDay || 26, config.month, config.year);
           return '<div class="builder-card" data-pidx="' + pIdx + '">' +
             '<div class="builder-card-header">' +
               '<span class="project-badge-num">#' + (pIdx + 1) + '</span>' +
               '<input type="text" class="b-code" value="' + escapeHtml(proj.code) + '" placeholder="Code" style="width: 85px;" title="Project Code">' +
               '<input type="text" class="b-name" value="' + escapeHtml(proj.name) + '" placeholder="Project Title" style="flex:1;" title="Project Name">' +
               '<div style="display:flex; align-items:center; gap:4px; font-size:11px; font-weight:600; color:var(--text-muted);">' +
-                '<span>RFP:</span>' +
-                '<input type="number" class="b-rfp" value="' + proj.rfpDay + '" min="1" max="31" style="width:55px;">' +
+                '<span>RTD:</span>' +
+                '<input type="text" class="b-rtd" value="' + escapeHtml(projRtd) + '" placeholder="dd/mm/yyyy" style="width:95px; text-align:center;" title="Ready to Delivery date (dd/mm/yyyy)">' +
               '</div>' +
               '<select class="b-status" style="width: 105px;">' +
                 '<option value="on-track" ' + (proj.status === 'on-track' ? 'selected' : '') + '>On-track</option>' +
@@ -2406,7 +2579,9 @@ Note:
 
             '<div class="builder-stage-list">' +
               proj.stages.map(function (st, sIdx) {
-                var dur = Math.max(1, (st.endDay - st.startDay) + 1);
+                var sDate = st.startDate || formatDateStr(st.startDay || 14, config.month, config.year);
+                var eDate = st.endDate || formatDateStr(st.endDay || 14, config.month, config.year);
+                var dur = calcDateDiffDays(sDate, eDate);
                 return '<div class="builder-stage-row" data-sidx="' + sIdx + '">' +
                   '<select class="b-stage-type" style="width: 120px;">' +
                     Object.keys(STAGE_CONFIG).map(function (k) {
@@ -2414,17 +2589,11 @@ Note:
                     }).join('') +
                   '</select>' +
                   '<input type="text" class="b-stage-title" value="' + escapeHtml(st.title) + '" placeholder="Stage Title" style="flex:1;">' +
-                  '<div class="stage-schedule-box" title="Khung thời gian stage từ ngày tới ngày">' +
+                  '<div class="stage-schedule-box" title="Khung thời gian stage (dd/mm/yyyy -> dd/mm/yyyy)">' +
                     '<span class="schedule-badge">📅 Schedule</span>' +
-                    '<div class="schedule-input-group">' +
-                      '<span class="schedule-lbl">Từ</span>' +
-                      '<input type="number" class="b-stage-from" value="' + st.startDay + '" min="1" max="31" title="Từ ngày">' +
-                    '</div>' +
+                    '<input type="text" class="b-stage-start" value="' + escapeHtml(sDate) + '" placeholder="dd/mm/yyyy" style="width:86px; text-align:center;" title="Từ ngày (dd/mm/yyyy)">' +
                     '<span class="schedule-arrow">➔</span>' +
-                    '<div class="schedule-input-group">' +
-                      '<span class="schedule-lbl">Tới</span>' +
-                      '<input type="number" class="b-stage-to" value="' + st.endDay + '" min="1" max="31" title="Tới ngày">' +
-                    '</div>' +
+                    '<input type="text" class="b-stage-end" value="' + escapeHtml(eDate) + '" placeholder="dd/mm/yyyy" style="width:86px; text-align:center;" title="Tới ngày (dd/mm/yyyy)">' +
                     '<span class="schedule-duration">' + dur + 'd</span>' +
                   '</div>' +
                   '<button class="btn btn-danger b-del-stage" style="padding:2px 6px;" title="Xóa stage">✕</button>' +
@@ -2447,8 +2616,10 @@ Note:
           card.querySelector('.b-name').addEventListener('input', function (e) {
             builderProjects[pIdx].name = e.target.value;
           });
-          card.querySelector('.b-rfp').addEventListener('change', function (e) {
-            builderProjects[pIdx].rfpDay = parseInt(e.target.value, 10) || 26;
+          card.querySelector('.b-rtd').addEventListener('input', function (e) {
+            builderProjects[pIdx].rtdDate = e.target.value;
+            var pr = parseDateStr(e.target.value);
+            if (pr) builderProjects[pIdx].rtdDay = pr.day;
           });
           card.querySelector('.b-status').addEventListener('change', function (e) {
             builderProjects[pIdx].status = e.target.value;
@@ -2463,25 +2634,23 @@ Note:
             var sIdx = parseInt(sRow.getAttribute('data-sidx'), 10);
             var typeSelect = sRow.querySelector('.b-stage-type');
             var titleInput = sRow.querySelector('.b-stage-title');
-            var fromInput = sRow.querySelector('.b-stage-from');
-            var toInput = sRow.querySelector('.b-stage-to');
+            var startInput = sRow.querySelector('.b-stage-start');
+            var endInput = sRow.querySelector('.b-stage-end');
             var durBadge = sRow.querySelector('.schedule-duration');
 
             function updateDurationUI() {
-              var sVal = parseInt(fromInput.value, 10) || 1;
-              var eVal = parseInt(toInput.value, 10) || sVal;
-              var d = Math.max(1, (eVal - sVal) + 1);
+              var sVal = (startInput.value || '').trim();
+              var eVal = (endInput.value || '').trim();
+              var d = calcDateDiffDays(sVal, eVal);
               if (durBadge) durBadge.textContent = d + 'd';
 
-              // Expand builder-end-day if stage extends beyond current timeline
-              var bEndEl = document.getElementById('builder-end-day');
-              if (bEndEl && parseInt(bEndEl.value, 10) < eVal) {
-                bEndEl.value = eVal;
-              }
-              var bStartEl = document.getElementById('builder-start-day');
-              if (bStartEl && parseInt(bStartEl.value, 10) > sVal) {
-                bStartEl.value = sVal;
-              }
+              builderProjects[pIdx].stages[sIdx].startDate = sVal;
+              builderProjects[pIdx].stages[sIdx].endDate = eVal;
+
+              var pS = parseDateStr(sVal);
+              if (pS) builderProjects[pIdx].stages[sIdx].startDay = pS.day;
+              var pE = parseDateStr(eVal);
+              if (pE) builderProjects[pIdx].stages[sIdx].endDay = pE.day;
             }
 
             typeSelect.addEventListener('change', function (e) {
@@ -2497,15 +2666,8 @@ Note:
               builderProjects[pIdx].stages[sIdx].title = e.target.value;
             });
 
-            fromInput.addEventListener('input', function (e) {
-              builderProjects[pIdx].stages[sIdx].startDay = parseInt(e.target.value, 10) || 1;
-              updateDurationUI();
-            });
-
-            toInput.addEventListener('input', function (e) {
-              builderProjects[pIdx].stages[sIdx].endDay = parseInt(e.target.value, 10) || 1;
-              updateDurationUI();
-            });
+            startInput.addEventListener('input', updateDurationUI);
+            endInput.addEventListener('input', updateDurationUI);
 
             sRow.querySelector('.b-del-stage').addEventListener('click', function () {
               builderProjects[pIdx].stages.splice(sIdx, 1);
@@ -2514,9 +2676,13 @@ Note:
           });
 
           card.querySelector('.b-add-stage').addEventListener('click', function () {
+            var sDate = formatDateStr(config.startDay || 14, config.month, config.year);
+            var eDate = formatDateStr((config.startDay || 14) + 1, config.month, config.year);
             builderProjects[pIdx].stages.push({
               stageType: 'fe',
               title: 'FE Full Build',
+              startDate: sDate,
+              endDate: eDate,
               startDay: config.startDay,
               endDay: config.startDay + 1
             });
@@ -2527,25 +2693,25 @@ Note:
 
       // Convert Builder Data Model to Raw Timeline Text
       function builderToRawText() {
-        var mStr = String(config.month);
         var text = 'Timeline ' + config.title + '\n\n—\n';
 
         builderProjects.forEach(function (proj, idx) {
           var num = idx + 1;
           var statusStr = proj.status === 'off-track' ? 'Off-track' : 'On-track';
-          text += num + '. ' + proj.code + ' - ' + proj.name + ' | RFP: ' + proj.rfpDay + '.' + mStr + ' | ' + statusStr + '\n';
+          var rtd = proj.rtdDate || formatDateStr(proj.rtdDay || 26, config.month, config.year);
+          text += num + '. ' + proj.code + ' - ' + proj.name + ' | RTD: ' + rtd + ' | ' + statusStr + '\n';
 
           (proj.stages || []).forEach(function (st) {
-            var dur = Math.max(1, (st.endDay - st.startDay) + 1);
-            var dateStr = (st.startDay === st.endDay) ?
-              (st.startDay + '.' + mStr) :
-              (st.startDay + '.' + mStr + ' - ' + st.endDay + '.' + mStr);
+            var sDate = st.startDate || formatDateStr(st.startDay, config.month, config.year);
+            var eDate = st.endDate || formatDateStr(st.endDay, config.month, config.year);
+            var dur = calcDateDiffDays(sDate, eDate);
+            var dateStr = (sDate === eDate) ? sDate : (sDate + ' -> ' + eDate);
             text += '- ' + st.title + ' (' + dur + ' days): - ETA: ' + dateStr + '\n';
           });
           text += '\n';
         });
 
-        if (parsedData.notes.length > 0) {
+        if (parsedData && parsedData.notes && parsedData.notes.length > 0) {
           text += 'Note:\n' + parsedData.notes.map(function (n) { return '- ' + n; }).join('\n');
         }
 
@@ -3025,10 +3191,16 @@ Note:
         on('btn-save-settings', 'click', function () {
           config.title = (document.getElementById('cfg-title').value || '').trim() || DEFAULT_CONFIG.title;
           config.subtitle = (document.getElementById('cfg-subtitle').value || '').trim() || DEFAULT_CONFIG.subtitle;
-          config.month = parseInt(document.getElementById('cfg-month').value, 10) || DEFAULT_CONFIG.month;
-          config.year = parseInt(document.getElementById('cfg-year').value, 10) || DEFAULT_CONFIG.year;
-          config.startDay = parseInt(document.getElementById('cfg-start-day').value, 10) || DEFAULT_CONFIG.startDay;
-          config.endDay = parseInt(document.getElementById('cfg-end-day').value, 10) || DEFAULT_CONFIG.endDay;
+
+          var rtdVal = (document.getElementById('cfg-rtd-date').value || '').trim();
+          if (rtdVal) {
+            config.rtdDate = rtdVal;
+            var pRtd = parseDateStr(rtdVal);
+            if (pRtd) {
+              config.month = pRtd.month;
+              config.year = pRtd.year;
+            }
+          }
           config.todayOverride = parseInt(document.getElementById('cfg-today-override').value, 10) || 0;
 
           var authorInput = document.getElementById('cfg-author-name');
@@ -3036,6 +3208,7 @@ Note:
             localStorage.setItem('roadmap_author_name', authorInput.value.trim());
           }
 
+          autoComputeTimelineRange();
           saveConfig(config);
           parsedData = parseTimeline(rawText);
           render();
@@ -3110,49 +3283,13 @@ Note:
           }
         });
 
-        on('btn-builder-autofit', 'click', function () {
-          var minDay = 99;
-          var maxDay = 0;
-          builderProjects.forEach(function (proj) {
-            if (proj.rfpDay) {
-              if (proj.rfpDay < minDay) minDay = proj.rfpDay;
-              if (proj.rfpDay > maxDay) maxDay = proj.rfpDay;
-            }
-            (proj.stages || []).forEach(function (st) {
-              if (st.startDay && st.startDay < minDay) minDay = st.startDay;
-              if (st.endDay && st.endDay > maxDay) maxDay = st.endDay;
-            });
-          });
-          if (minDay <= maxDay && minDay !== 99) {
-            var sEl = document.getElementById('builder-start-day');
-            var eEl = document.getElementById('builder-end-day');
-            if (sEl) sEl.value = minDay;
-            if (eEl) eEl.value = maxDay;
-            showToast('⚡ Đã căn chỉnh Schedule: ' + minDay + '.' + config.month + ' ➔ ' + maxDay + '.' + config.month);
-          }
-        });
-
         on('btn-builder-apply', 'click', function () {
-          var bStart = parseInt(document.getElementById('builder-start-day').value, 10);
-          var bEnd = parseInt(document.getElementById('builder-end-day').value, 10);
-          if (bStart && bEnd && bEnd >= bStart) {
-            config.startDay = bStart;
-            config.endDay = bEnd;
-          } else {
-            // Auto fit if not specified or invalid
-            builderProjects.forEach(function (proj) {
-              (proj.stages || []).forEach(function (st) {
-                if (st.startDay && st.startDay < config.startDay) config.startDay = st.startDay;
-                if (st.endDay && st.endDay > config.endDay) config.endDay = st.endDay;
-              });
-            });
-          }
-          saveConfig(config);
-
           var generatedText = builderToRawText();
           rawText = generatedText;
           saveRawText(rawText);
           parsedData = parseTimeline(rawText);
+          autoComputeTimelineRange();
+          saveConfig(config);
           render();
           closeModals();
           showToast('Builder timeline applied successfully!');
