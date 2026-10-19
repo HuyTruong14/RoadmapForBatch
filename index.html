@@ -1126,6 +1126,111 @@
       padding: 6px 10px;
     }
 
+    /* Builder Timeline Schedule Bar */
+    .builder-schedule-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .builder-schedule-bar .schedule-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .builder-schedule-bar .schedule-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .builder-schedule-bar input[type="number"] {
+      width: 48px;
+      padding: 3px 4px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    /* Schedule Component for Stages */
+    .stage-schedule-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 3px 8px;
+      font-size: 11px;
+      flex-shrink: 0;
+    }
+    .stage-schedule-box .schedule-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .stage-schedule-box .schedule-input-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .stage-schedule-box .schedule-lbl {
+      color: var(--text-muted);
+      font-size: 10.5px;
+      font-weight: 500;
+    }
+    .stage-schedule-box input[type="number"] {
+      width: 44px;
+      padding: 2px 4px;
+      text-align: center;
+      font-size: 11.5px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .stage-schedule-box .schedule-arrow {
+      color: var(--text-muted);
+      font-size: 11px;
+      padding: 0 1px;
+    }
+    .stage-schedule-box .schedule-duration {
+      background: rgba(37, 99, 235, 0.12);
+      color: var(--accent);
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 10px;
+      white-space: nowrap;
+    }
+
+    /* Weekend Column & Header Styling */
+    .day-col-header.is-weekend {
+      background: rgba(245, 158, 11, 0.08);
+      color: var(--warning);
+    }
+    .grid-guide-col.is-weekend {
+      background: rgba(0, 0, 0, 0.015);
+    }
+    [data-theme="dark"] .grid-guide-col.is-weekend {
+      background: rgba(255, 255, 255, 0.015);
+    }
+
     .add-stage-link {
       font-size: 11px;
       font-weight: 600;
@@ -1395,15 +1500,21 @@
             <input type="number" id="cfg-year" min="2020" max="2050">
           </div>
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="cfg-start-day">Start Day</label>
-            <input type="number" id="cfg-start-day" min="1" max="31">
+        <div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:10px 12px; margin-bottom:12px;">
+          <label style="font-weight:700; font-size:12px; margin-bottom:6px; display:flex; align-items:center; gap:6px;">
+            <span>🗓️</span> Timeline Schedule (Khung thời gian từ ngày tới ngày)
+          </label>
+          <div class="form-row" style="margin-bottom:0;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label for="cfg-start-day" style="font-size:11px; color:var(--text-muted);">Từ ngày (Start Day)</label>
+              <input type="number" id="cfg-start-day" min="1" max="31">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label for="cfg-end-day" style="font-size:11px; color:var(--text-muted);">Tới ngày (End Day)</label>
+              <input type="number" id="cfg-end-day" min="1" max="31">
+            </div>
           </div>
-          <div class="form-group">
-            <label for="cfg-end-day">End Day</label>
-            <input type="number" id="cfg-end-day" min="1" max="31">
-          </div>
+          <small style="font-size:10.5px; color:var(--text-muted); display:block; margin-top:5px;">Timeline Gantt Chart sẽ co giãn chính xác theo ngày bắt đầu và kết thúc (hỗ trợ cả 28, 30, 31...).</small>
         </div>
         <div class="form-group">
           <label for="cfg-today-override">Today Override (0 = auto-detect)</label>
@@ -1487,6 +1598,25 @@
           <div style="display: flex; gap: 8px;">
             <button id="btn-builder-import" class="btn" title="Import current timeline data into form">Import Current</button>
             <button id="btn-builder-clear" class="btn" title="Reset to one blank project">Clear All</button>
+          </div>
+        </div>
+
+        <div class="builder-schedule-bar">
+          <div class="schedule-bar-left">
+            <span style="font-size:15px;">🗓️</span>
+            <span style="font-weight:700; font-size:12.5px;">Timeline Schedule:</span>
+            <span style="color:var(--text-muted); font-size:11px;">(Khung thời gian tổng thể)</span>
+          </div>
+          <div class="schedule-bar-right">
+            <div style="display:flex; align-items:center; gap:5px; font-size:11.5px;">
+              <span style="color:var(--text-muted);">Từ ngày:</span>
+              <input type="number" id="builder-start-day" min="1" max="31" value="14">
+              <span style="color:var(--text-muted); font-weight:600;">➔</span>
+              <span style="color:var(--text-muted);">Tới ngày:</span>
+              <input type="number" id="builder-end-day" min="1" max="31" value="30">
+              <span style="color:var(--accent); font-weight:600; font-size:11px;">(Tháng <span id="builder-month-num">10</span>)</span>
+            </div>
+            <button type="button" id="btn-builder-autofit" class="btn" style="font-size:11px; padding:3px 8px;" title="Tự động co giãn theo ngày sớm nhất & muộn nhất của các Stage">⚡ Auto-Fit</button>
           </div>
         </div>
 
@@ -1724,15 +1854,39 @@ Note:
         }, 2500);
       }
 
-      // 8. WORKING DAYS COMPUTATION (Mon–Fri only)
+      // 8. WORKING DAYS COMPUTATION (Mon–Fri default, plus active tasks and timeline boundaries)
       function computeWorkingDays() {
         var days = [];
         var monthIdx = config.month - 1;
+
+        // Collect all days touched by tasks, stages or RFP
+        var activeDays = {};
+        if (parsedData && parsedData.projects) {
+          parsedData.projects.forEach(function (p) {
+            if (p.rfpDay) activeDays[p.rfpDay] = true;
+            (p.tasks || p.stages || []).forEach(function (t) {
+              var sMin = Math.min(t.startDay, t.endDay);
+              var sMax = Math.max(t.startDay, t.endDay);
+              for (var d = sMin; d <= sMax; d++) {
+                activeDays[d] = true;
+              }
+            });
+          });
+        }
+
         for (var d = config.startDay; d <= config.endDay; d++) {
           var dateObj = new Date(config.year, monthIdx, d);
           var dayOfWeek = dateObj.getDay();
-          if (dayOfWeek !== 0 && dayOfWeek !== 6) { // Skip Sunday (0) and Saturday (6)
+          var isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+          // Keep Mon-Fri, but include weekend day if active or if user explicitly chose it as startDay or endDay
+          if (!isWeekend || activeDays[d] || d === config.startDay || d === config.endDay) {
             days.push(d);
+          }
+        }
+
+        if (days.length === 0) {
+          for (var d2 = config.startDay; d2 <= config.endDay; d2++) {
+            days.push(d2);
           }
         }
         return days;
@@ -2012,16 +2166,19 @@ Note:
           var dateObj = new Date(config.year, monthIdx, d);
           var dayName = dayNames[dateObj.getDay()];
           var isToday = (activeTodayDay !== null && d === activeTodayDay);
+          var isWeekend = (dateObj.getDay() === 0 || dateObj.getDay() === 6);
 
-          headerColsHtml += '<div class="day-col-header ' + (isToday ? 'is-today' : '') + '">' +
+          headerColsHtml += '<div class="day-col-header ' + (isToday ? 'is-today' : '') + (isWeekend ? ' is-weekend' : '') + '">' +
             '<div class="day-name">' + dayName + '</div>' +
             '<div class="day-num">' + d + '.' + config.month + '</div>' +
             '</div>';
         });
 
         // Generate Grid Columns HTML for each row
-        var gridColsHtml = workingDays.map(function () {
-          return '<div class="grid-guide-col"></div>';
+        var gridColsHtml = workingDays.map(function (d) {
+          var dateObj = new Date(config.year, monthIdx, d);
+          var isWeekend = (dateObj.getDay() === 0 || dateObj.getDay() === 6);
+          return '<div class="grid-guide-col' + (isWeekend ? ' is-weekend' : '') + '"></div>';
         }).join('');
 
         // Generate Rows
@@ -2199,6 +2356,13 @@ Note:
           builderProjects = [createEmptyBuilderProject(1)];
         }
         renderBuilder();
+
+        var bStartEl = document.getElementById('builder-start-day');
+        var bEndEl = document.getElementById('builder-end-day');
+        var bMonthEl = document.getElementById('builder-month-num');
+        if (bStartEl) bStartEl.value = config.startDay;
+        if (bEndEl) bEndEl.value = config.endDay;
+        if (bMonthEl) bMonthEl.textContent = config.month;
       }
 
       function createEmptyBuilderProject(num) {
@@ -2242,6 +2406,7 @@ Note:
 
             '<div class="builder-stage-list">' +
               proj.stages.map(function (st, sIdx) {
+                var dur = Math.max(1, (st.endDay - st.startDay) + 1);
                 return '<div class="builder-stage-row" data-sidx="' + sIdx + '">' +
                   '<select class="b-stage-type" style="width: 120px;">' +
                     Object.keys(STAGE_CONFIG).map(function (k) {
@@ -2249,11 +2414,20 @@ Note:
                     }).join('') +
                   '</select>' +
                   '<input type="text" class="b-stage-title" value="' + escapeHtml(st.title) + '" placeholder="Stage Title" style="flex:1;">' +
-                  '<span style="font-size:11px; color:var(--text-muted);">From:</span>' +
-                  '<input type="number" class="b-stage-from" value="' + st.startDay + '" min="1" max="31" style="width:55px;">' +
-                  '<span style="font-size:11px; color:var(--text-muted);">To:</span>' +
-                  '<input type="number" class="b-stage-to" value="' + st.endDay + '" min="1" max="31" style="width:55px;">' +
-                  '<button class="btn btn-danger b-del-stage" style="padding:2px 6px;">✕</button>' +
+                  '<div class="stage-schedule-box" title="Khung thời gian stage từ ngày tới ngày">' +
+                    '<span class="schedule-badge">📅 Schedule</span>' +
+                    '<div class="schedule-input-group">' +
+                      '<span class="schedule-lbl">Từ</span>' +
+                      '<input type="number" class="b-stage-from" value="' + st.startDay + '" min="1" max="31" title="Từ ngày">' +
+                    '</div>' +
+                    '<span class="schedule-arrow">➔</span>' +
+                    '<div class="schedule-input-group">' +
+                      '<span class="schedule-lbl">Tới</span>' +
+                      '<input type="number" class="b-stage-to" value="' + st.endDay + '" min="1" max="31" title="Tới ngày">' +
+                    '</div>' +
+                    '<span class="schedule-duration">' + dur + 'd</span>' +
+                  '</div>' +
+                  '<button class="btn btn-danger b-del-stage" style="padding:2px 6px;" title="Xóa stage">✕</button>' +
                 '</div>';
               }).join('') +
               '<div>' +
@@ -2289,10 +2463,29 @@ Note:
             var sIdx = parseInt(sRow.getAttribute('data-sidx'), 10);
             var typeSelect = sRow.querySelector('.b-stage-type');
             var titleInput = sRow.querySelector('.b-stage-title');
+            var fromInput = sRow.querySelector('.b-stage-from');
+            var toInput = sRow.querySelector('.b-stage-to');
+            var durBadge = sRow.querySelector('.schedule-duration');
+
+            function updateDurationUI() {
+              var sVal = parseInt(fromInput.value, 10) || 1;
+              var eVal = parseInt(toInput.value, 10) || sVal;
+              var d = Math.max(1, (eVal - sVal) + 1);
+              if (durBadge) durBadge.textContent = d + 'd';
+
+              // Expand builder-end-day if stage extends beyond current timeline
+              var bEndEl = document.getElementById('builder-end-day');
+              if (bEndEl && parseInt(bEndEl.value, 10) < eVal) {
+                bEndEl.value = eVal;
+              }
+              var bStartEl = document.getElementById('builder-start-day');
+              if (bStartEl && parseInt(bStartEl.value, 10) > sVal) {
+                bStartEl.value = sVal;
+              }
+            }
 
             typeSelect.addEventListener('change', function (e) {
               builderProjects[pIdx].stages[sIdx].stageType = e.target.value;
-              // Auto fill title if empty
               if (!titleInput.value.trim()) {
                 var defaultName = STAGE_CONFIG[e.target.value].name;
                 titleInput.value = defaultName;
@@ -2303,12 +2496,17 @@ Note:
             titleInput.addEventListener('input', function (e) {
               builderProjects[pIdx].stages[sIdx].title = e.target.value;
             });
-            sRow.querySelector('.b-stage-from').addEventListener('change', function (e) {
+
+            fromInput.addEventListener('input', function (e) {
               builderProjects[pIdx].stages[sIdx].startDay = parseInt(e.target.value, 10) || 1;
+              updateDurationUI();
             });
-            sRow.querySelector('.b-stage-to').addEventListener('change', function (e) {
+
+            toInput.addEventListener('input', function (e) {
               builderProjects[pIdx].stages[sIdx].endDay = parseInt(e.target.value, 10) || 1;
+              updateDurationUI();
             });
+
             sRow.querySelector('.b-del-stage').addEventListener('click', function () {
               builderProjects[pIdx].stages.splice(sIdx, 1);
               renderBuilder();
@@ -2912,7 +3110,45 @@ Note:
           }
         });
 
+        on('btn-builder-autofit', 'click', function () {
+          var minDay = 99;
+          var maxDay = 0;
+          builderProjects.forEach(function (proj) {
+            if (proj.rfpDay) {
+              if (proj.rfpDay < minDay) minDay = proj.rfpDay;
+              if (proj.rfpDay > maxDay) maxDay = proj.rfpDay;
+            }
+            (proj.stages || []).forEach(function (st) {
+              if (st.startDay && st.startDay < minDay) minDay = st.startDay;
+              if (st.endDay && st.endDay > maxDay) maxDay = st.endDay;
+            });
+          });
+          if (minDay <= maxDay && minDay !== 99) {
+            var sEl = document.getElementById('builder-start-day');
+            var eEl = document.getElementById('builder-end-day');
+            if (sEl) sEl.value = minDay;
+            if (eEl) eEl.value = maxDay;
+            showToast('⚡ Đã căn chỉnh Schedule: ' + minDay + '.' + config.month + ' ➔ ' + maxDay + '.' + config.month);
+          }
+        });
+
         on('btn-builder-apply', 'click', function () {
+          var bStart = parseInt(document.getElementById('builder-start-day').value, 10);
+          var bEnd = parseInt(document.getElementById('builder-end-day').value, 10);
+          if (bStart && bEnd && bEnd >= bStart) {
+            config.startDay = bStart;
+            config.endDay = bEnd;
+          } else {
+            // Auto fit if not specified or invalid
+            builderProjects.forEach(function (proj) {
+              (proj.stages || []).forEach(function (st) {
+                if (st.startDay && st.startDay < config.startDay) config.startDay = st.startDay;
+                if (st.endDay && st.endDay > config.endDay) config.endDay = st.endDay;
+              });
+            });
+          }
+          saveConfig(config);
+
           var generatedText = builderToRawText();
           rawText = generatedText;
           saveRawText(rawText);
