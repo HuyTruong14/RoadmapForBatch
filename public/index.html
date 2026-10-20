@@ -118,16 +118,21 @@
       padding: 0;
     }
 
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
     body {
       background-color: var(--bg);
       color: var(--text);
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       font-size: 14px;
       line-height: 1.5;
-      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
     }
 
@@ -552,19 +557,22 @@
     /* MAIN CONTAINER */
     main {
       flex: 1;
-      padding: 16px 20px 40px;
+      min-height: 0;
+      padding: 10px 20px 14px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 10px;
       width: 100%;
+      overflow: hidden;
     }
 
     /* LEGEND BAR */
     .legend-bar {
+      flex-shrink: 0;
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 8px 16px;
+      padding: 6px 16px;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
@@ -578,7 +586,7 @@
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
     }
 
     .legend-item {
@@ -595,6 +603,10 @@
 
     /* GANTT CONTAINER */
     .gantt-card {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 12px;
@@ -603,7 +615,10 @@
     }
 
     .gantt-scroll {
+      flex: 1;
+      min-height: 0;
       overflow-x: auto;
+      overflow-y: auto;
       position: relative;
     }
 
@@ -613,14 +628,15 @@
       position: relative;
     }
 
-    /* TIMELINE HEADER ROW */
+    /* TIMELINE HEADER ROW (STICKY TOP) */
     .timeline-header {
       display: flex;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 2px solid var(--border);
       background: var(--surface-alt);
       position: sticky;
       top: 0;
-      z-index: 20;
+      z-index: 25;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
 
     .col-info-header {
@@ -636,6 +652,10 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      position: sticky;
+      left: 0;
+      z-index: 26;
+      background: var(--surface-alt);
     }
 
     .col-canvas-header {
@@ -702,6 +722,8 @@
       justify-content: space-between;
       gap: 10px;
       background: var(--surface);
+      position: sticky;
+      left: 0;
       z-index: 10;
     }
 
@@ -774,6 +796,27 @@
       border: 1px solid rgba(79, 110, 247, 0.25);
     }
 
+    .asset-badge {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+    .asset-badge.asset-true {
+      background: rgba(34, 197, 94, 0.12);
+      color: var(--success);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+    .asset-badge.asset-false {
+      background: rgba(239, 68, 68, 0.12);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
     .proj-note-pill {
       display: inline-flex;
       align-items: center;
@@ -789,6 +832,187 @@
       overflow: hidden;
       text-overflow: ellipsis;
       vertical-align: middle;
+    }
+
+    /* 2-COLUMN REVIEW IMPORT TABLE */
+    .review-table-2col {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11.5px;
+    }
+    .review-table-2col th {
+      background: var(--surface-alt);
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 2px solid var(--border);
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 10.5px;
+    }
+    .review-table-2col td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .review-table-2col tr:hover {
+      background: rgba(0, 0, 0, 0.02);
+    }
+    .diff-col-box {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 11.5px;
+      line-height: 1.6;
+    }
+    .diff-col-box.is-new {
+      background: rgba(79, 110, 247, 0.03);
+      border-color: rgba(79, 110, 247, 0.25);
+    }
+    .diff-phase-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      padding: 3px 6px;
+      border-radius: 4px;
+      margin-bottom: 4px;
+      font-size: 11px;
+    }
+    .diff-phase-item.added {
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.35);
+      color: var(--success);
+      font-weight: 600;
+    }
+    .diff-phase-item.updated {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      color: var(--warning);
+      font-weight: 600;
+    }
+    .diff-phase-item.same {
+      background: rgba(0, 0, 0, 0.03);
+      color: var(--text-secondary);
+    }
+
+    .diff-pill {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .diff-pill.changed {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--warning);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    .diff-pill.same {
+      color: var(--text-muted);
+    }
+    .diff-pill.new {
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--success);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    /* DUAL-COLOR DELAY BAR */
+    .gantt-bar-container {
+      position: absolute;
+      top: 6px;
+      height: 28px;
+      display: flex;
+      align-items: stretch;
+      cursor: pointer;
+      transition: transform 0.12s ease, filter 0.12s ease;
+      z-index: 10;
+    }
+    .gantt-bar-container:hover {
+      filter: brightness(1.12);
+      transform: scaleY(1.06);
+      z-index: 18;
+    }
+    .gantt-bar-plan {
+      height: 100%;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #fff;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      position: relative;
+    }
+    .gantt-bar-container.has-delay .gantt-bar-plan {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+      border-right: 1px dashed rgba(255, 255, 255, 0.6);
+    }
+    .gantt-bar-delay {
+      height: 100%;
+      background: repeating-linear-gradient(
+        -45deg,
+        #ef4444,
+        #ef4444 8px,
+        #dc2626 8px,
+        #dc2626 16px
+      );
+      border-top-right-radius: 6px;
+      border-bottom-right-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 6px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      box-shadow: 0 2px 6px rgba(239, 68, 68, 0.35);
+      border-left: 1px solid rgba(255, 255, 255, 0.4);
+      position: relative;
+    }
+    .badge-stage-delayed {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      margin-left: 4px;
+    }
+    .btn-stage-delay-trigger {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 10px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .btn-stage-delay-trigger:hover {
+      background: var(--surface-alt);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .btn-stage-delay-trigger.is-active {
+      background: rgba(239, 68, 68, 0.12);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: var(--danger);
+      font-weight: 600;
     }
 
     .status-badge {
@@ -898,6 +1122,10 @@
       justify-content: space-between;
       gap: 8px;
       font-size: 11px;
+      position: sticky;
+      left: 0;
+      z-index: 9;
+      background: var(--surface-alt);
     }
 
     .subtask-info .title {
@@ -1412,10 +1640,7 @@
           Builder
         </button>
 
-        <button id="btn-source" class="btn admin-only" title="Edit source timeline text">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-          Edit Source
-        </button>
+
 
         <button id="btn-share" class="btn admin-only" title="Share live Roadmap link with colleagues">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
@@ -1523,15 +1748,15 @@
         <div class="gantt-table" id="gantt-table">
           <!-- Injected dynamically by renderGantt() -->
         </div>
-      </div>
-    </div>
 
-    <!-- Notes Footer -->
-    <div class="notes-card hidden" id="notes-card">
-      <div class="icon">ℹ️</div>
-      <div>
-        <div style="font-weight: 700; margin-bottom: 4px; color: var(--text);">Timeline Scope & Risk Notes:</div>
-        <div id="notes-content" style="line-height: 1.6;"></div>
+        <!-- Notes Footer -->
+        <div class="notes-card hidden" id="notes-card" style="margin: 16px 16px;">
+          <div class="icon">ℹ️</div>
+          <div>
+            <div style="font-weight: 700; margin-bottom: 4px; color: var(--text);">Timeline Scope & Risk Notes:</div>
+            <div id="notes-content" style="line-height: 1.6;"></div>
+          </div>
+        </div>
       </div>
     </div>
   </main>
@@ -1608,21 +1833,94 @@
     </div>
   </div>
 
-  <!-- MODAL 2: EDIT SOURCE (RAW TEXT) -->
-  <div class="modal-overlay" id="modal-source">
-    <div class="modal-panel modal-wide">
+  <!-- MODAL: REVIEW IMPORT CHANGES -->
+  <div class="modal-overlay" id="modal-import-review">
+    <div class="modal-panel modal-wide" style="max-width: 1100px;">
       <div class="modal-header">
-        <h2>Edit Timeline Source Text</h2>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:18px;">🔍</span>
+          <div>
+            <h2 style="font-size: 16px;">Review Thay Đổi Timeline Trước Khi Import</h2>
+            <p style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
+              Đối chiếu chi tiết 2 cột <strong>Thông tin hiện tại (Cũ)</strong> và <strong>Thông tin từ Excel (Mới)</strong>. Chỉ khi bấm <strong>Xác nhận Cập nhật Roadmap</strong> thì thay đổi mới được áp dụng.
+            </p>
+          </div>
+        </div>
         <button class="btn btn-icon btn-close-modal">✕</button>
       </div>
-      <div class="modal-body">
-        <textarea id="raw-source-textarea" class="code-area" placeholder="Paste timeline here..."></textarea>
+      <div class="modal-body" style="max-height: 65vh; overflow-y: auto; padding: 12px 16px;">
+        <div id="import-review-summary" style="margin-bottom: 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary);"></div>
+        <div id="import-review-table-container"></div>
       </div>
-      <div class="modal-footer">
-        <button id="btn-load-sample" class="btn">Load Sample Data</button>
+      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
+        <span id="import-review-filename" style="font-size: 11px; color: var(--text-muted); font-family: monospace;"></span>
         <div style="display: flex; gap: 8px;">
-          <button class="btn btn-close-modal">Cancel</button>
-          <button id="btn-apply-source" class="btn btn-primary">Parse & Apply</button>
+          <button class="btn btn-close-modal">Hủy bỏ</button>
+          <button id="btn-confirm-import" class="btn btn-primary" style="background: var(--success); border-color: var(--success);">
+            ✓ Xác nhận Cập nhật Roadmap
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CONFIGURE STAGE DELAY -->
+  <div class="modal-overlay" id="modal-stage-delay">
+    <div class="modal-panel" style="max-width: 520px;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:20px;">⏱️</span>
+          <div>
+            <h2 style="font-size: 16px;" id="delay-modal-title">Cấu hình Delay Stage</h2>
+            <p style="font-size: 11px; color: var(--text-muted); margin-top: 2px;" id="delay-modal-subtitle">
+              Ghi nhận số ngày delay và lý do chi tiết cho công đoạn
+            </p>
+          </div>
+        </div>
+        <button class="btn btn-icon btn-close-modal">✕</button>
+      </div>
+      <div class="modal-body" style="padding: 16px 20px;">
+        <div id="delay-plan-info" style="background: var(--surface-alt); padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 16px; font-size: 12px; line-height: 1.6;">
+          <!-- Injected dynamically -->
+        </div>
+
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer;">
+            <input type="checkbox" id="delay-is-active" style="width: 16px; height: 16px;">
+            <span>Khai báo Stage này đang bị Delay</span>
+          </label>
+        </div>
+
+        <div id="delay-form-fields" style="display: none;">
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label for="delay-days-input" style="font-weight: 600; display: block; margin-bottom: 6px;">
+              Số ngày trễ tiến độ (+Days) <span style="color:var(--danger)">*</span>
+            </label>
+            <input type="number" id="delay-days-input" min="0.5" step="0.5" placeholder="Nhập số ngày delay (vd: 1, 2, 3...)" style="width: 100%;">
+            <small style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 4px;">
+              Trên Roadmap sẽ hiển thị thanh 2 màu: màu chuẩn theo plan + thanh sọc đỏ tương ứng độ trễ.
+            </small>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label for="delay-note-input" style="font-weight: 600; display: block; margin-bottom: 6px;">
+              Lý do / Nguyên nhân Delay <span style="color:var(--danger)">*</span>
+            </label>
+            <textarea id="delay-note-input" rows="3" placeholder="Bắt buộc nhập lý do (vd: Chờ spec API BE đối tác, phát sinh 2 issue blocker tại QA...)" style="width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; background: var(--surface); color: var(--text); font-family: inherit; font-size: 12.5px;"></textarea>
+          </div>
+
+          <div id="delay-validation-error" style="display: none; padding: 8px 12px; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 6px; color: var(--danger); font-size: 11.5px; margin-bottom: 12px;"></div>
+        </div>
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
+        <button id="btn-reset-stage-delay" class="btn btn-danger" style="font-size: 12px;">
+          Bỏ Delay (Về Plan ban đầu)
+        </button>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-close-modal">Hủy</button>
+          <button id="btn-save-stage-delay" class="btn btn-primary">
+            Lưu thay đổi Delay
+          </button>
         </div>
       </div>
     </div>
@@ -1738,49 +2036,49 @@
       };
 
       // 3. BUILT-IN SAMPLE RAW TIMELINE DATA
-      var DATA_VERSION = '2026-10-19-v3';
+      var DATA_VERSION = '2026-10-19-v4';
       var SAMPLE_TIMELINE = `Timeline Roadmap Planner
 
 —
-1. 1992 - One Piece Grand Line | RTD: 26/10/2026 | On-track | Studio: DeepSea | Note: Test migration + 0.25 MDs
+1. 1992 - One Piece Grand Line | RTD: 26/10/2026 | On-track | Studio: DeepSea | AssetEN: 1 | Note: Test migration + 0.25 MDs
 - BE (1 days): - ETA: 14/10/2026 -> 14/10/2026
 - FE (1 days): - ETA: 15/10/2026 -> 15/10/2026
 - BO Tool (2 days): - ETA: 16/10/2026 -> 19/10/2026
 - Testing & Fix bug (4 days): - ETA: 15/10/2026 -> 20/10/2026
 
-2. 9910 - Tsubasa | RTD: 26/10/2026 | On-track | Studio: Pandoria | Note: Test migration + 0.5 MDs
+2. 9910 - Tsubasa | RTD: 26/10/2026 | On-track | Studio: Pandoria | AssetEN: 1 | Note: Test migration + 0.5 MDs
 - BE (1 days): - ETA: 14/10/2026 -> 14/10/2026
 - FE (2 days): - ETA: 15/10/2026 -> 16/10/2026
 - BO Tool (1 days): - ETA: 19/10/2026 -> 19/10/2026
 - Testing & Fix bug (4 days): - ETA: 16/10/2026 -> 21/10/2026
 
-3. 9939 - Gundam Battle | RTD: 26/10/2026 | On-track | Studio: Aterlus | Note: Test migration + 0.5 MDs
+3. 9939 - Gundam Battle | RTD: 26/10/2026 | On-track | Studio: Aterlus | AssetEN: 1 | Note: Test migration + 0.5 MDs
 - BE (1 days): - ETA: 14/10/2026 -> 14/10/2026
 - FE (2 days): - ETA: 15/10/2026 -> 16/10/2026
 - BO Tool (1 days): - ETA: 20/10/2026 -> 20/10/2026
 - Testing & Fix bug (4 days): - ETA: 19/10/2026 -> 22/10/2026
 
-4. 9869 - Naruto | RTD: 26/10/2026 | On-track | Studio: OneForce | Note: Test migration + 0.5 MDs
+4. 9869 - Naruto | RTD: 26/10/2026 | On-track | Studio: OneForce | AssetEN: 0 | Note: Test migration + 0.5 MDs
 - Localization (2 days): - ETA: 14/10/2026 -> 15/10/2026
 - BE (1 days): - ETA: 14/10/2026 -> 14/10/2026
 - FE (2 days): - ETA: 16/10/2026 -> 19/10/2026
 - BO Tool (1 days): - ETA: 21/10/2026 -> 21/10/2026
 - Testing & Fix bug (4 days): - ETA: 20/10/2026 -> 23/10/2026
 
-5. 2989 - Taiko Rabbit | RTD: 26/10/2026 | On-track | Studio: Apek | Note: Không test migration
+5. 2989 - Taiko Rabbit | RTD: 26/10/2026 | On-track | Studio: Apek | AssetEN: 1 | Note: Không test migration
 - BE (1 days): - ETA: 14/10/2026 -> 14/10/2026
 - FE (3 days): - ETA: 16/10/2026 -> 20/10/2026
 - BO Tool (1 days): - ETA: 22/10/2026 -> 22/10/2026
 - Testing & Fix bug (4 days): - ETA: 20/10/2026 -> 23/10/2026
 
-6. 9897 - Dragon Ball | RTD: 26/10/2026 | On-track | Studio: Bee | Note: Không test migration
+6. 9897 - Dragon Ball | RTD: 26/10/2026 | On-track | Studio: Bee | AssetEN: 0 | Note: Không test migration
 - Localization (3 days): - ETA: 14/10/2026 -> 16/10/2026
 - BE (1 days): - ETA: 15/10/2026 -> 15/10/2026
 - FE (2 days): - ETA: 16/10/2026 -> 19/10/2026
 - BO Tool (1 days): - ETA: 23/10/2026 -> 23/10/2026
 - Testing & Fix bug (4 days): - ETA: 19/10/2026 -> 23/10/2026
 
-7. 3920 - Rise Of Ronin | RTD: 29/10/2026 | Off-track | Studio: Slayteria | Note: Test migration + 1 MD
+7. 3920 - Rise Of Ronin | RTD: 29/10/2026 | Off-track | Studio: Slayteria | AssetEN: 0 | Note: Test migration + 1 MD
 - Localization (4 days): - ETA: 14/10/2026 -> 19/10/2026
 - BE (1 days): - ETA: 16/10/2026 -> 16/10/2026
 - FE (2 days): - ETA: 19/10/2026 -> 20/10/2026
@@ -2047,32 +2345,16 @@ Note:
         config.endDay = maxDay;
       }
 
-      // 8. WORKING DAYS COMPUTATION (Mon–Fri default, plus active tasks and timeline boundaries)
+      // 8. WORKING DAYS COMPUTATION (Strictly Mon–Fri, excluding Saturday & Sunday)
       function computeWorkingDays() {
         var days = [];
         var monthIdx = config.month - 1;
 
-        // Collect all days touched by tasks, stages or RFP/RTD
-        var activeDays = {};
-        if (parsedData && parsedData.projects) {
-          parsedData.projects.forEach(function (p) {
-            if (p.rfpDay) activeDays[p.rfpDay] = true;
-            (p.tasks || p.stages || []).forEach(function (t) {
-              var sMin = Math.min(t.startDay, t.endDay);
-              var sMax = Math.max(t.startDay, t.endDay);
-              for (var d = sMin; d <= sMax; d++) {
-                activeDays[d] = true;
-              }
-            });
-          });
-        }
-
         for (var d = config.startDay; d <= config.endDay; d++) {
           var dateObj = new Date(config.year, monthIdx, d);
           var dayOfWeek = dateObj.getDay();
-          var isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
-          // Keep Mon-Fri, but include weekend day if active or if user explicitly chose it as startDay or endDay
-          if (!isWeekend || activeDays[d] || d === config.startDay || d === config.endDay) {
+          // Strictly exclude Saturday (6) and Sunday (0)
+          if (dayOfWeek !== 0 && dayOfWeek !== 6) {
             days.push(d);
           }
         }
@@ -2085,25 +2367,33 @@ Note:
         return days;
       }
 
-      function getDayWorkingIndex(workingDays, day) {
+      function getDayWorkingIndex(workingDays, day, isEnd) {
+        if (!workingDays || workingDays.length === 0) return 0;
         if (day <= workingDays[0]) return 0;
         if (day >= workingDays[workingDays.length - 1]) return workingDays.length - 1;
         var direct = workingDays.indexOf(day);
         if (direct !== -1) return direct;
-        for (var i = 0; i < workingDays.length; i++) {
-          if (workingDays[i] >= day) return i;
+        if (isEnd) {
+          for (var i = workingDays.length - 1; i >= 0; i--) {
+            if (workingDays[i] <= day) return i;
+          }
+          return 0;
+        } else {
+          for (var j = 0; j < workingDays.length; j++) {
+            if (workingDays[j] >= day) return j;
+          }
+          return workingDays.length - 1;
         }
-        return workingDays.length - 1;
       }
 
       function calcLeft(workingDays, day) {
-        var idx = getDayWorkingIndex(workingDays, day);
+        var idx = getDayWorkingIndex(workingDays, day, false);
         return (idx / workingDays.length) * 100;
       }
 
       function calcWidth(workingDays, startDay, endDay) {
-        var sIdx = getDayWorkingIndex(workingDays, startDay);
-        var eIdx = getDayWorkingIndex(workingDays, endDay);
+        var sIdx = getDayWorkingIndex(workingDays, startDay, false);
+        var eIdx = getDayWorkingIndex(workingDays, endDay, true);
         var span = Math.max(1, (eIdx - sIdx) + 1);
         return Math.max(3, (span / workingDays.length) * 100);
       }
@@ -2131,7 +2421,7 @@ Note:
             return;
           }
 
-          // Match Project Header: "1. 9910 - Tsubasa | RTD: 26/10/2026 | On-track | Studio: DeepSea | Note: ..."
+          // Match Project Header: "1. 9910 - Tsubasa | RTD: 26/10/2026 | On-track | Studio: DeepSea | AssetEN: 1 | Note: ..."
           var projectMatch = line.match(/^(\d+)[\.\)]\s*(\d+)\s*-\s*([^|]+)\|\s*(?:RTD|RFP):\s*([^\s|]+)(?:\s*\|\s*(.*))?$/i);
           if (projectMatch) {
             if (currentProject) projects.push(currentProject);
@@ -2142,6 +2432,7 @@ Note:
             var studio = '';
             var projNote = '';
             var projectStatus = 'Development';
+            var assetEn = 0;
 
             extraParts.forEach(function (part) {
               var mStudio = part.match(/^Studio:\s*(.+)$/i);
@@ -2150,6 +2441,8 @@ Note:
               if (mNote) projNote = mNote[1].trim();
               var mPStat = part.match(/^DevStatus:\s*(.+)$/i);
               if (mPStat) projectStatus = mPStat[1].trim();
+              var mAsset = part.match(/^AssetEN:\s*(1|0|true|false)/i);
+              if (mAsset) assetEn = (mAsset[1] === '1' || mAsset[1].toLowerCase() === 'true') ? 1 : 0;
             });
 
             var delayDate = null;
@@ -2168,6 +2461,7 @@ Note:
               code: projectMatch[2].trim(),
               name: projectMatch[3].trim(),
               studio: studio,
+              assetEn: assetEn,
               note: projNote,
               projectStatus: projectStatus,
               rfpDate: rtdFormatted,
@@ -2273,6 +2567,18 @@ Note:
 
             if (startDay !== null) {
               var dur = calcDateDiffDays(startDateStr, endDateStr);
+              // Extract Stage Delay (+Xd and Note)
+              var stageDelayDays = 0;
+              var stageDelayNote = '';
+              var mDelay = cleanLine.match(/\|\s*Delay:\s*\+?(\d+(?:\.\d+)?)\s*d?/i);
+              if (mDelay) {
+                stageDelayDays = parseFloat(mDelay[1]);
+              }
+              var mDelayNote = cleanLine.match(/\|\s*DelayNote:\s*([^|\n]+)/i);
+              if (mDelayNote) {
+                stageDelayNote = mDelayNote[1].trim();
+              }
+
               currentProject.tasks.push({
                 stageType: stageType,
                 title: title || cleanLine,
@@ -2281,6 +2587,8 @@ Note:
                 startDay: startDay,
                 endDay: endDay || startDay,
                 duration: dur || durationDays,
+                delayDays: stageDelayDays,
+                delayNote: stageDelayNote,
                 rawText: cleanLine,
                 isMilestone: stageType === 'milestone'
               });
@@ -2420,21 +2728,25 @@ Note:
           var isDelayed = proj.status === 'off-track';
           var hasBlockers = proj.blockers && proj.blockers.length > 0;
 
-          // Min and Max day for master summary bar
-          var minStart = 99;
-          var maxEnd = 0;
-          proj.tasks.forEach(function (t) {
-            if (t.startDay < minStart) minStart = t.startDay;
-            if (t.endDay > maxEnd) maxEnd = t.endDay;
-          });
-          if (minStart === 99) { minStart = config.startDay; maxEnd = config.endDay; }
-
           // RFP Day extraction
           var rfpDay = null;
           if (proj.rfpDate) {
             var rfpMatch = proj.rfpDate.match(/^(\d{1,2})/);
             if (rfpMatch) rfpDay = parseInt(rfpMatch[1], 10);
           }
+
+          // Min and Max day for master summary bar (stretching to RTD day and taking stage delays into account)
+          var minStart = 99;
+          var maxEnd = 0;
+          proj.tasks.forEach(function (t) {
+            if (t.startDay < minStart) minStart = t.startDay;
+            var tEnd = t.endDay + (t.delayDays || 0);
+            if (tEnd > maxEnd) maxEnd = tEnd;
+          });
+          if (rfpDay && rfpDay > maxEnd) {
+            maxEnd = rfpDay;
+          }
+          if (minStart === 99) { minStart = config.startDay; maxEnd = config.endDay; }
 
           rowsHtml += '<div class="project-group" data-id="' + escapeHtml(proj.id) + '">' +
             '<!-- MASTER ROW -->' +
@@ -2447,6 +2759,7 @@ Note:
                   '<div class="proj-title-box">' +
                     '<div>' +
                     (proj.studio ? '<span class="studio-badge">' + escapeHtml(proj.studio) + '</span>' : '') +
+                    '<span class="asset-badge ' + (proj.assetEn ? 'asset-true' : 'asset-false') + '">' + (proj.assetEn ? 'Asset EN: True' : 'Asset EN: Failed') + '</span>' +
                     '<span class="code">#' + escapeHtml(proj.code) + '</span> ' +
                     '<span class="name" title="' + escapeHtml(proj.name) + '">' + escapeHtml(proj.name) + '</span></div>' +
                     '<div class="proj-dates">' +
@@ -2474,23 +2787,55 @@ Note:
 
             '<!-- SUBTASKS -->' +
             '<div class="subtasks-container ' + (areAllCollapsed ? 'hidden' : '') + '">' +
-              proj.tasks.map(function (task) {
+              proj.tasks.map(function (task, tIdx) {
                 var cfg = STAGE_CONFIG[task.stageType] || STAGE_CONFIG.integrate;
                 var isSingle = (task.startDay === task.endDay);
+                var hasDelay = (task.delayDays && task.delayDays > 0);
+                var planLeft = calcLeft(workingDays, task.startDay);
+                var planWidth = calcWidth(workingDays, task.startDay, task.endDay);
+
+                var barHtml = '';
+                if (!hasDelay) {
+                  barHtml = '<div class="gantt-bar-container" data-pid="' + escapeHtml(proj.id) + '" data-tidx="' + tIdx + '" style="left: ' + planLeft + '%; width: ' + planWidth + '%;" title="Click để cấu hình Delay cho stage: ' + escapeHtml(task.title) + ' (' + task.duration + 'd)">' +
+                    '<div class="gantt-bar-plan" style="width: 100%; background: ' + cfg.color + ';">' +
+                      escapeHtml(task.title) + ' (' + task.duration + 'd)' +
+                    '</div>' +
+                  '</div>';
+                } else {
+                  // Dual-color bar: Plan Segment (stage color) + Delay Extension Segment (striped danger red)
+                  var delayWidth = Math.max(3, (task.delayDays / workingDays.length) * 100);
+                  var totalWidth = planWidth + delayWidth;
+                  var planFraction = (planWidth / totalWidth) * 100;
+                  var delayFraction = 100 - planFraction;
+
+                  barHtml = '<div class="gantt-bar-container has-delay" data-pid="' + escapeHtml(proj.id) + '" data-tidx="' + tIdx + '" style="left: ' + planLeft + '%; width: ' + totalWidth + '%;" title="Kế hoạch: ' + escapeHtml(task.startDate) + ' ➔ ' + escapeHtml(task.endDate) + ' | ⚠️ Delay +' + task.delayDays + 'd: ' + escapeHtml(task.delayNote) + '">' +
+                    '<div class="gantt-bar-plan" style="width: ' + planFraction + '%; background: ' + cfg.color + ';" title="Kế hoạch chuẩn: ' + escapeHtml(task.startDate) + ' ➔ ' + escapeHtml(task.endDate) + '">' +
+                      escapeHtml(task.title) + ' (' + task.duration + 'd)' +
+                    '</div>' +
+                    '<div class="gantt-bar-delay" style="width: ' + delayFraction + '%;" title="⚠️ Delay +' + task.delayDays + 'd: ' + escapeHtml(task.delayNote) + '">' +
+                      '⚠️ +' + task.delayDays + 'd' +
+                    '</div>' +
+                  '</div>';
+                }
+
                 return '<div class="subtask-row">' +
                   '<div class="subtask-info">' +
                     '<span class="title" title="' + escapeHtml(task.title) + '">' +
                       '<span class="stage-dot" style="background: ' + cfg.color + ';"></span>' +
                       '<span>' + escapeHtml(task.title) + '</span>' +
                       '<span style="color:var(--text-muted); font-size:10px;">(' + task.duration + 'd)</span>' +
+                      (hasDelay ? '<span class="badge-stage-delayed" title="' + escapeHtml(task.delayNote) + '">⚠️ Delay +' + task.delayDays + 'd</span>' : '') +
                     '</span>' +
-                    '<span class="range">' + task.startDay + '.' + config.month + (!isSingle ? ' ➔ ' + task.endDay + '.' + config.month : '') + '</span>' +
+                    '<div style="display:flex; align-items:center; gap:6px;">' +
+                      '<span class="range">' + task.startDay + '.' + config.month + (!isSingle ? ' ➔ ' + task.endDay + '.' + config.month : '') + '</span>' +
+                      '<button class="btn-stage-delay-trigger ' + (hasDelay ? 'is-active' : '') + '" data-pid="' + escapeHtml(proj.id) + '" data-tidx="' + tIdx + '" title="Cấu hình Delay">' +
+                        (hasDelay ? '⏱️ +' + task.delayDays + 'd' : '⏱️ Delay') +
+                      '</button>' +
+                    '</div>' +
                   '</div>' +
                   '<div class="col-canvas">' +
                     '<div class="grid-guides">' + gridColsHtml + '</div>' +
-                    '<div class="gantt-bar" style="left: ' + calcLeft(workingDays, task.startDay) + '%; width: ' + calcWidth(workingDays, task.startDay, task.endDay) + '%; background: ' + cfg.color + ';" title="' + escapeHtml(task.title) + ' (' + task.duration + 'd): ' + task.startDay + '.' + config.month + ' - ' + task.endDay + '.' + config.month + '">' +
-                      escapeHtml(task.title) + ' (' + task.duration + 'd)' +
-                    '</div>' +
+                    barHtml +
                   '</div>' +
                 '</div>';
               }).join('') +
@@ -2534,6 +2879,16 @@ Note:
             btn.textContent = isHidden ? '▶' : '▼';
           });
         });
+
+        // Bind Stage Delay Modal Triggers
+        container.querySelectorAll('.gantt-bar-container, .btn-stage-delay-trigger').forEach(function (el) {
+          el.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var pId = el.getAttribute('data-pid');
+            var tIdx = parseInt(el.getAttribute('data-tidx'), 10);
+            openStageDelayModal(pId, tIdx);
+          });
+        });
       }
 
       // 12. MODAL CONTROLLERS
@@ -2565,6 +2920,152 @@ Note:
         if (authorInput) authorInput.value = myName;
       }
 
+      // 12.1 STAGE DELAY CONTROLLER
+      var activeDelayTarget = null; // { pId, tIdx, project, task }
+
+      function openStageDelayModal(pId, tIdx) {
+        if (userRole !== 'admin') {
+          openModal('modal-admin-login');
+          return;
+        }
+
+        var proj = (parsedData.projects || []).find(function (p) {
+          return String(p.id) === String(pId) || String(p.code) === String(pId);
+        });
+        if (!proj || !proj.tasks || !proj.tasks[tIdx]) {
+          showToast('⚠️ Không tìm thấy công đoạn tương ứng!');
+          return;
+        }
+
+        var task = proj.tasks[tIdx];
+        activeDelayTarget = {
+          pId: pId,
+          tIdx: tIdx,
+          project: proj,
+          task: task
+        };
+
+        var titleEl = document.getElementById('delay-modal-title');
+        if (titleEl) titleEl.textContent = 'Cấu hình Delay: ' + (task.title || task.stageType);
+        var subEl = document.getElementById('delay-modal-subtitle');
+        if (subEl) subEl.textContent = '#' + proj.code + ' - ' + proj.name + ' (' + (proj.studio || 'Studio') + ')';
+
+        var planInfoEl = document.getElementById('delay-plan-info');
+        var hasDelay = (task.delayDays && task.delayDays > 0);
+
+        if (planInfoEl) {
+          planInfoEl.innerHTML = '<div style="display:flex; justify-content:space-between; margin-bottom:6px;">' +
+            '<span><strong>Kế hoạch (Plan):</strong> ' + escapeHtml(task.startDate) + ' ➔ ' + escapeHtml(task.endDate) + '</span>' +
+            '<span style="color:var(--text-muted); font-weight:600;">' + (task.duration || 1) + ' ngày làm việc</span>' +
+          '</div>' +
+          (hasDelay ?
+            '<div style="color:var(--danger); font-weight:600; font-size:11.5px; background:rgba(239,68,68,0.08); padding:6px 8px; border-radius:6px; border:1px solid rgba(239,68,68,0.25);">' +
+              '⚠️ Hiện tại đang Delay +' + task.delayDays + ' ngày | Lý do: ' + escapeHtml(task.delayNote || 'Chưa ghi rõ lý do') +
+            '</div>' :
+            '<div style="color:var(--success); font-size:11.5px; font-weight:600;">✓ Đang theo đúng tiến độ kế hoạch ban đầu (Chưa có delay)</div>');
+        }
+
+        var chkEl = document.getElementById('delay-is-active');
+        var fieldsEl = document.getElementById('delay-form-fields');
+        var daysInput = document.getElementById('delay-days-input');
+        var noteInput = document.getElementById('delay-note-input');
+        var errEl = document.getElementById('delay-validation-error');
+
+        if (errEl) {
+          errEl.style.display = 'none';
+          errEl.textContent = '';
+        }
+
+        if (hasDelay) {
+          if (chkEl) chkEl.checked = true;
+          if (fieldsEl) fieldsEl.style.display = 'block';
+          if (daysInput) daysInput.value = task.delayDays;
+          if (noteInput) noteInput.value = task.delayNote || '';
+        } else {
+          if (chkEl) chkEl.checked = false;
+          if (fieldsEl) fieldsEl.style.display = 'none';
+          if (daysInput) daysInput.value = 1;
+          if (noteInput) noteInput.value = '';
+        }
+
+        openModal('modal-stage-delay');
+      }
+
+      function updateRawTextTaskDelay(pId, tIdx, delayDays, delayNote) {
+        var proj = (parsedData.projects || []).find(function (p) {
+          return String(p.id) === String(pId) || String(p.code) === String(pId);
+        });
+        if (!proj || !proj.tasks || !proj.tasks[tIdx]) {
+          showToast('⚠️ Không tìm thấy công đoạn tương ứng để cập nhật delay!');
+          return;
+        }
+
+        var lines = rawText.split('\n');
+        var foundProj = false;
+        var taskCounter = 0;
+        var updated = false;
+
+        for (var i = 0; i < lines.length; i++) {
+          var line = lines[i];
+          var isProjHeader = new RegExp('^\\s*(?:\\d+\\.)?\\s*' + proj.code + '\\b').test(line) ||
+                             new RegExp('^\\s*' + proj.id + '\\.\\s*').test(line);
+
+          if (isProjHeader) {
+            foundProj = true;
+            taskCounter = 0;
+            continue;
+          }
+
+          if (foundProj) {
+            if (/^\s*\d+\.\s+\d+/i.test(line) || /^\s*Note:/i.test(line)) {
+              break;
+            }
+
+            var clean = line.replace(/^[-\*\s]+/, '').trim();
+            if (!clean) continue;
+
+            if (/^\(Note\)/i.test(clean) || clean.includes('cần thông tin') || clean.includes('File MC') || clean.includes('Math involve') || clean.includes('chưa ai chịu trách nhiệm')) {
+              continue;
+            }
+
+            var isTask = (/^BE\b|^FE\b|^PL\s*,\s*BO\b|^BO\s*Tool\b|^QC\b|^Testing\b|Ready for Production|Milestone|RFP|RTD|Integrate|MLMC|Delivery|Asset|Sound|Localization/i.test(clean)) ||
+                         (/\bETA\b/i.test(clean)) ||
+                         (/\d{1,2}[\/\.]\d{1,2}/.test(clean));
+
+            if (isTask) {
+              if (taskCounter === tIdx) {
+                var baseLine = line
+                  .replace(/\s*\|\s*Delay:\s*\+?[\d\.]+\s*d?/gi, '')
+                  .replace(/\s*\|\s*DelayNote:\s*[^|\n]+/gi, '')
+                  .trimEnd();
+
+                if (delayDays > 0) {
+                  baseLine += ' | Delay: +' + delayDays + 'd | DelayNote: ' + (delayNote || '');
+                }
+                lines[i] = baseLine;
+                updated = true;
+                break;
+              }
+              taskCounter++;
+            }
+          }
+        }
+
+        if (!updated) {
+          showToast('⚠️ Không thể cập nhật dòng stage tương ứng trong mã nguồn!');
+          return;
+        }
+
+        rawText = lines.join('\n');
+        saveRawText(rawText);
+        parsedData = parseTimeline(rawText);
+        autoComputeTimelineRange();
+        render();
+        closeModals();
+        if (window.syncToFirebase) window.syncToFirebase('Update Stage Delay: ' + proj.code + ' +' + delayDays + 'd');
+        showToast(delayDays > 0 ? ('⏱️ Đã lưu Delay +' + delayDays + 'd cho stage!') : '✅ Đã xóa Delay, đưa stage về Plan ban đầu!');
+      }
+
       // 13. VISUAL BUILDER (FORM-BASED UI)
       function importCurrentToBuilder() {
         var defaultRtd = config.rtdDate || formatDateStr(26, config.month, config.year);
@@ -2579,6 +3080,7 @@ Note:
             code: p.code,
             name: p.name,
             studio: p.studio || '',
+            assetEn: p.assetEn ? 1 : 0,
             note: p.note || '',
             rtdDate: rtdFormatted,
             rtdDay: rtdNum,
@@ -2613,6 +3115,7 @@ Note:
           code: '100' + num,
           name: 'Project ' + num,
           studio: '',
+          assetEn: 1,
           note: '',
           rtdDate: rtdStr,
           rtdDay: 26,
@@ -2640,6 +3143,10 @@ Note:
               '<input type="text" class="b-studio" value="' + escapeHtml(proj.studio || '') + '" placeholder="Studio" style="width: 75px;" title="Studio (e.g. DeepSea)">' +
               '<input type="text" class="b-code" value="' + escapeHtml(proj.code) + '" placeholder="Code" style="width: 75px;" title="Project Code">' +
               '<input type="text" class="b-name" value="' + escapeHtml(proj.name) + '" placeholder="Project Title" style="flex:1;" title="Project Name">' +
+              '<select class="b-asset-en" style="width: 105px;" title="Asset EN Status">' +
+                '<option value="1" ' + (proj.assetEn ? 'selected' : '') + '>EN: True</option>' +
+                '<option value="0" ' + (!proj.assetEn ? 'selected' : '') + '>EN: Failed</option>' +
+              '</select>' +
               '<div style="display:flex; align-items:center; gap:4px; font-size:11px; font-weight:600; color:var(--text-muted);">' +
                 '<span>RTD:</span>' +
                 '<input type="text" class="b-rtd" value="' + escapeHtml(projRtd) + '" placeholder="dd/mm/yyyy" style="width:90px; text-align:center;" title="Ready to Delivery date (dd/mm/yyyy)">' +
@@ -2694,6 +3201,12 @@ Note:
           card.querySelector('.b-name').addEventListener('input', function (e) {
             builderProjects[pIdx].name = e.target.value;
           });
+          var assetSel = card.querySelector('.b-asset-en');
+          if (assetSel) {
+            assetSel.addEventListener('change', function (e) {
+              builderProjects[pIdx].assetEn = (e.target.value === '1') ? 1 : 0;
+            });
+          }
           card.querySelector('.b-rtd').addEventListener('input', function (e) {
             builderProjects[pIdx].rtdDate = e.target.value;
             var pr = parseDateStr(e.target.value);
@@ -2782,6 +3295,7 @@ Note:
           var rtd = proj.rtdDate || formatDateStr(proj.rtdDay || 26, config.month, config.year);
           var headerLine = num + '. ' + proj.code + ' - ' + proj.name + ' | RTD: ' + rtd + ' | ' + statusStr;
           if (proj.studio) headerLine += ' | Studio: ' + proj.studio;
+          headerLine += ' | AssetEN: ' + (proj.assetEn ? '1' : '0');
           if (proj.note) headerLine += ' | Note: ' + proj.note;
           text += headerLine + '\n';
 
@@ -3264,6 +3778,8 @@ Note:
           return null;
         }
 
+        var pendingImportRawText = null;
+
         function handleExcelUpload(file) {
           if (!file) return;
           if (typeof XLSX === 'undefined') {
@@ -3289,6 +3805,7 @@ Note:
                 '—'
               ];
               var projCount = 0;
+              var importedProjects = [];
 
               for (var rIdx = 3; rIdx < rows.length; rIdx++) {
                 var r = rows[rIdx];
@@ -3298,6 +3815,7 @@ Note:
                 var studio = (r[0] != null ? String(r[0]) : '').trim();
                 var projectRaw = (r[1] != null ? String(r[1]) : '').trim();
                 var devStatus = (r[2] != null ? String(r[2]) : '').trim();
+                var assetEn = (r[3] == 1 || String(r[3]) === '1' || String(r[3]).toLowerCase() === 'true') ? 1 : 0;
                 var locStart = excelSerialToDateStr(r[4]);
                 var locEnd = excelSerialToDateStr(r[5]);
                 var beStart = excelSerialToDateStr(r[6]);
@@ -3321,44 +3839,287 @@ Note:
 
                 var headerLine = projCount + '. ' + code + ' - ' + name + ' | RTD: ' + rtd + ' | On-track';
                 if (studio) headerLine += ' | Studio: ' + studio;
+                headerLine += ' | AssetEN: ' + assetEn;
                 if (note) headerLine += ' | Note: ' + note;
                 if (devStatus) headerLine += ' | DevStatus: ' + devStatus;
                 lines.push(headerLine);
 
-                if (beStart && beEnd) {
-                  var dBe = calcDateDiffDays(beStart, beEnd);
-                  lines.push('- BE (' + dBe + ' days): - ETA: ' + beStart + (beStart !== beEnd ? ' -> ' + beEnd : ''));
-                }
+                var stagesList = [];
                 if (locStart && locEnd) {
                   var dLoc = calcDateDiffDays(locStart, locEnd);
                   lines.push('- Localization (' + dLoc + ' days): - ETA: ' + locStart + (locStart !== locEnd ? ' -> ' + locEnd : ''));
+                  stagesList.push({ name: 'Localization', start: locStart, end: locEnd, days: dLoc });
+                }
+                if (beStart && beEnd) {
+                  var dBe = calcDateDiffDays(beStart, beEnd);
+                  lines.push('- BE (' + dBe + ' days): - ETA: ' + beStart + (beStart !== beEnd ? ' -> ' + beEnd : ''));
+                  stagesList.push({ name: 'BE', start: beStart, end: beEnd, days: dBe });
                 }
                 if (feStart && feEnd) {
                   var dFe = calcDateDiffDays(feStart, feEnd);
                   lines.push('- FE (' + dFe + ' days): - ETA: ' + feStart + (feStart !== feEnd ? ' -> ' + feEnd : ''));
+                  stagesList.push({ name: 'FE', start: feStart, end: feEnd, days: dFe });
                 }
                 if (boStart && boEnd) {
                   var dBo = calcDateDiffDays(boStart, boEnd);
                   lines.push('- BO Tool (' + dBo + ' days): - ETA: ' + boStart + (boStart !== boEnd ? ' -> ' + boEnd : ''));
+                  stagesList.push({ name: 'BO Tool', start: boStart, end: boEnd, days: dBo });
                 }
                 if (qcStart && qcEnd) {
                   var dQc = calcDateDiffDays(qcStart, qcEnd);
                   lines.push('- Testing & Fix bug (' + dQc + ' days): - ETA: ' + qcStart + (qcStart !== qcEnd ? ' -> ' + qcEnd : ''));
+                  stagesList.push({ name: 'QC', start: qcStart, end: qcEnd, days: dQc });
                 }
                 lines.push('');
+
+                importedProjects.push({
+                  code: code,
+                  name: name,
+                  studio: studio,
+                  assetEn: assetEn,
+                  rtd: rtd,
+                  note: note,
+                  stages: stagesList
+                });
               }
 
               lines.push('Note:');
               lines.push('- Dữ liệu đồng bộ từ file Excel: ' + file.name);
 
-              rawText = lines.join('\n');
-              saveRawText(rawText);
-              parsedData = parseTimeline(rawText);
-              autoComputeTimelineRange();
-              saveConfig(config);
-              renderGantt();
-              if (window.syncToFirebase) window.syncToFirebase('Import Excel Tracking (' + file.name + ')');
-              showToast('✅ Đã import thành công ' + projCount + ' dự án từ file Excel!');
+              pendingImportRawText = lines.join('\n');
+
+              function normalizeStageKey(name) {
+                var s = String(name || '').toLowerCase();
+                if (s.indexOf('loc') !== -1 || s.indexOf('localization') !== -1) return 'Localization';
+                if (s.indexOf('be') !== -1 || s.indexOf('backend') !== -1) return 'BE';
+                if (s.indexOf('fe') !== -1 || s.indexOf('frontend') !== -1) return 'FE';
+                if (s.indexOf('bo') !== -1 || s.indexOf('backoffice') !== -1) return 'BO Tool';
+                if (s.indexOf('qc') !== -1 || s.indexOf('test') !== -1 || s.indexOf('qa') !== -1) return 'QC';
+                return name;
+              }
+
+              // Build 2-Column Review Comparison
+              var changedCount = 0;
+              var totalNewProjects = 0;
+              var totalAddedPhases = 0;
+              var totalUpdatedPhases = 0;
+              var totalUpdatedRtd = 0;
+              var totalUpdatedAsset = 0;
+              var reviewRowsHtml = '';
+
+              importedProjects.forEach(function (imp) {
+                var oldP = (parsedData.projects || []).find(function (p) {
+                  return p.code === imp.code || p.name.toLowerCase() === imp.name.toLowerCase();
+                });
+
+                var projectHasDiff = false;
+                var oldColHtml = '';
+                var newColHtml = '';
+
+                if (!oldP) {
+                  projectHasDiff = true;
+                  changedCount++;
+                  totalNewProjects++;
+
+                  oldColHtml = '<div class="diff-col-box" style="color:var(--text-muted); font-style:italic;">' +
+                    'Dự án chưa có trên Roadmap (Sẽ được tạo mới)' +
+                  '</div>';
+
+                  newColHtml = '<div class="diff-col-box is-new">' +
+                    '<div style="margin-bottom:6px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">' +
+                      '<span class="diff-pill new">+ DỰ ÁN MỚI</span>' +
+                      '<span><strong>RTD:</strong> ' + escapeHtml(imp.rtd) + '</span>' +
+                      '<span style="color:var(--border);">|</span>' +
+                      '<span><strong>Asset EN:</strong> <span class="diff-pill ' + (imp.assetEn ? 'new' : 'changed') + '">' + (imp.assetEn ? 'True' : 'Failed') + '</span></span>' +
+                    '</div>' +
+                    '<div style="font-size:11px; font-weight:700; color:var(--text-muted); margin-bottom:4px;">Schedule các Phase mới:</div>' +
+                    '<div style="display:flex; flex-direction:column; gap:4px;">' +
+                      imp.stages.map(function (st) {
+                        return '<div class="diff-phase-item added">' +
+                          '<span>+ Phase mới: <strong>' + escapeHtml(st.name) + '</strong></span>' +
+                          '<span>' + escapeHtml(st.start) + ' ➔ ' + escapeHtml(st.end) + ' (' + st.days + 'd)</span>' +
+                        '</div>';
+                      }).join('') +
+                    '</div>' +
+                    (imp.note ? '<div style="margin-top:6px; font-size:11px; color:var(--text-secondary);"><strong>Ghi chú:</strong> ' + escapeHtml(imp.note) + '</div>' : '') +
+                  '</div>';
+                } else {
+                  var oldAsset = (oldP.assetEn ? 1 : 0);
+                  var oldRtd = oldP.rfpDate || '-';
+                  var oldNote = (oldP.note || '').trim();
+
+                  // RTD diff
+                  var rtdDiffLabel = '';
+                  var isRtdChanged = (oldRtd !== imp.rtd);
+                  if (isRtdChanged) {
+                    projectHasDiff = true;
+                    totalUpdatedRtd++;
+                    var pOld = parseDateStr(oldRtd);
+                    var pNew = parseDateStr(imp.rtd);
+                    var dDays = (pOld && pNew) ? (pNew.day - pOld.day) : 0;
+                    rtdDiffLabel = dDays > 0 ? ('+' + dDays + 'd Delay') : (dDays < 0 ? (dDays + 'd Sớm') : 'Đổi ngày');
+                  }
+
+                  // Asset EN diff
+                  var isAssetChanged = (oldAsset !== imp.assetEn);
+                  if (isAssetChanged) {
+                    projectHasDiff = true;
+                    totalUpdatedAsset++;
+                  }
+
+                  // Note diff
+                  var isNoteChanged = (oldNote !== imp.note);
+                  if (isNoteChanged) projectHasDiff = true;
+
+                  // Stages Schedule Comparison
+                  var oldTasks = oldP.tasks || [];
+                  var matchedOldKeys = {};
+                  var stageDiffsHtml = [];
+
+                  imp.stages.forEach(function (newSt) {
+                    var nKey = normalizeStageKey(newSt.name);
+                    var matchedOldTask = oldTasks.find(function (ot) {
+                      return normalizeStageKey(ot.title || ot.stageType) === nKey;
+                    });
+
+                    if (matchedOldTask) {
+                      matchedOldKeys[nKey] = true;
+                      var dateSame = (matchedOldTask.startDate === newSt.start && matchedOldTask.endDate === newSt.end);
+                      if (dateSame) {
+                        stageDiffsHtml.push(
+                          '<div class="diff-phase-item same">' +
+                            '<span>✓ <strong>' + escapeHtml(newSt.name) + ':</strong></span>' +
+                            '<span>' + escapeHtml(newSt.start) + ' ➔ ' + escapeHtml(newSt.end) + ' (' + newSt.days + 'd) (Giữ nguyên)</span>' +
+                          '</div>'
+                        );
+                      } else {
+                        projectHasDiff = true;
+                        totalUpdatedPhases++;
+                        stageDiffsHtml.push(
+                          '<div class="diff-phase-item updated">' +
+                            '<div>↻ Cập nhật <strong>' + escapeHtml(newSt.name) + ':</strong></div>' +
+                            '<div style="text-align:right;">' +
+                              '<span style="text-decoration:line-through; opacity:0.75;">' + escapeHtml(matchedOldTask.startDate) + ' ➔ ' + escapeHtml(matchedOldTask.endDate) + '</span> ' +
+                              '➔ <strong>' + escapeHtml(newSt.start) + ' ➔ ' + escapeHtml(newSt.end) + '</strong> (' + newSt.days + 'd)' +
+                            '</div>' +
+                          '</div>'
+                        );
+                      }
+                    } else {
+                      // Phase mới thêm trong Excel
+                      projectHasDiff = true;
+                      totalAddedPhases++;
+                      stageDiffsHtml.push(
+                        '<div class="diff-phase-item added">' +
+                          '<span>+ Phase mới: <strong>' + escapeHtml(newSt.name) + '</strong></span>' +
+                          '<span>' + escapeHtml(newSt.start) + ' ➔ ' + escapeHtml(newSt.end) + ' (' + newSt.days + 'd)</span>' +
+                        '</div>'
+                      );
+                    }
+                  });
+
+                  // Check if any old task is NOT in Excel
+                  oldTasks.forEach(function (ot) {
+                    var oKey = normalizeStageKey(ot.title || ot.stageType);
+                    if (!matchedOldKeys[oKey]) {
+                      stageDiffsHtml.push(
+                        '<div class="diff-phase-item" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); color:var(--danger);">' +
+                          '<span>- Không có trong Excel: <strong>' + escapeHtml(ot.title || ot.stageType) + '</strong></span>' +
+                          '<span>(' + escapeHtml(ot.startDate) + ' ➔ ' + escapeHtml(ot.endDate) + ')</span>' +
+                        '</div>'
+                      );
+                    }
+                  });
+
+                  if (projectHasDiff) changedCount++;
+
+                  // Old Column Box
+                  var oldStagesListHtml = oldTasks.map(function (ot) {
+                    return '<div class="diff-phase-item same">' +
+                      '<span>• <strong>' + escapeHtml(ot.title || ot.stageType) + ':</strong></span>' +
+                      '<span>' + escapeHtml(ot.startDate) + ' ➔ ' + escapeHtml(ot.endDate) + ' (' + (ot.duration || 1) + 'd)' +
+                        (ot.delayDays > 0 ? (' <span style="color:var(--danger); font-weight:700;">⚠️ Delay +' + ot.delayDays + 'd</span>') : '') +
+                      '</span>' +
+                    '</div>';
+                  }).join('');
+
+                  oldColHtml = '<div class="diff-col-box">' +
+                    '<div style="margin-bottom:6px; font-size:11.5px;">' +
+                      '<strong>RTD:</strong> <span>' + escapeHtml(oldRtd) + '</span>' +
+                      '<span style="margin:0 6px; color:var(--border);">|</span>' +
+                      '<strong>Asset EN:</strong> <span class="diff-pill ' + (oldAsset ? 'new' : 'changed') + '">' + (oldAsset ? 'True' : 'Failed') + '</span>' +
+                    '</div>' +
+                    '<div style="font-size:11px; font-weight:700; color:var(--text-muted); margin-bottom:4px;">Các Phase Schedule hiện tại:</div>' +
+                    '<div style="display:flex; flex-direction:column; gap:3px;">' +
+                      (oldStagesListHtml || '<span style="color:var(--text-muted);">- Chưa có phase -</span>') +
+                    '</div>' +
+                    (oldNote ? '<div style="margin-top:6px; font-size:11px; color:var(--text-muted);"><strong>Ghi chú:</strong> ' + escapeHtml(oldNote) + '</div>' : '') +
+                  '</div>';
+
+                  // New Column Box
+                  newColHtml = '<div class="diff-col-box ' + (projectHasDiff ? 'is-new' : '') + '">' +
+                    '<div style="margin-bottom:6px; font-size:11.5px;">' +
+                      '<strong>RTD:</strong> ' +
+                      (isRtdChanged ?
+                        ('<span style="text-decoration:line-through; color:var(--text-muted);">' + escapeHtml(oldRtd) + '</span> ➔ <strong style="color:var(--warning);">' + escapeHtml(imp.rtd) + '</strong> <span class="diff-pill changed">' + rtdDiffLabel + '</span>') :
+                        ('<span>' + escapeHtml(imp.rtd) + '</span> <span class="diff-pill same">(Giữ nguyên)</span>')) +
+                      '<span style="margin:0 6px; color:var(--border);">|</span>' +
+                      '<strong>Asset EN:</strong> ' +
+                      (isAssetChanged ?
+                        ('<span style="text-decoration:line-through; color:var(--text-muted);">' + (oldAsset ? 'True' : 'Failed') + '</span> ➔ <span class="diff-pill changed">' + (imp.assetEn ? 'True' : 'Failed') + '</span>') :
+                        ('<span class="diff-pill same">' + (imp.assetEn ? 'True' : 'Failed') + '</span>')) +
+                    '</div>' +
+                    '<div style="font-size:11px; font-weight:700; color:var(--text-muted); margin-bottom:4px;">Schedule các Phase sau Import:</div>' +
+                    '<div style="display:flex; flex-direction:column; gap:3px;">' +
+                      stageDiffsHtml.join('') +
+                    '</div>' +
+                    (isNoteChanged ?
+                      ('<div style="margin-top:6px; font-size:11px;"><strong>Ghi chú:</strong> <span style="text-decoration:line-through; color:var(--text-muted);">' + escapeHtml(oldNote || 'None') + '</span> ➔ <strong style="color:var(--warning);">' + escapeHtml(imp.note || 'None') + '</strong></div>') :
+                      (imp.note ? ('<div style="margin-top:6px; font-size:11px; color:var(--text-muted);"><strong>Ghi chú:</strong> ' + escapeHtml(imp.note) + '</div>') : '')) +
+                  '</div>';
+                }
+
+                reviewRowsHtml += '<tr>' +
+                  '<td>' +
+                    (imp.studio ? '<span class="studio-badge">' + escapeHtml(imp.studio) + '</span><br>' : '') +
+                    '<strong>#' + escapeHtml(imp.code) + '</strong><br>' +
+                    '<span style="font-size:12px; font-weight:600;">' + escapeHtml(imp.name) + '</span>' +
+                  '</td>' +
+                  '<td>' + oldColHtml + '</td>' +
+                  '<td>' + newColHtml + '</td>' +
+                '</tr>';
+              });
+
+              var tableHtml = '<table class="review-table-2col">' +
+                '<thead>' +
+                  '<tr>' +
+                    '<th style="width:22%;">Dự án / Studio</th>' +
+                    '<th style="width:39%;">Thông tin hiện tại trên Roadmap (Cũ)</th>' +
+                    '<th style="width:39%;">Thông tin từ file Excel (Mới)</th>' +
+                  '</tr>' +
+                '</thead>' +
+                '<tbody>' + reviewRowsHtml + '</tbody>' +
+              '</table>';
+
+              var sumEl = document.getElementById('import-review-summary');
+              if (sumEl) {
+                sumEl.innerHTML = '📋 Tìm thấy <strong>' + projCount + ' dự án</strong> trong file Excel. ' +
+                  (changedCount > 0 ?
+                    ('Phát hiện <strong>' + changedCount + ' dự án có thay đổi</strong> (' +
+                      (totalAddedPhases ? '<strong>' + totalAddedPhases + '</strong> Phase mới thêm, ' : '') +
+                      (totalUpdatedPhases ? '<strong>' + totalUpdatedPhases + '</strong> Phase cập nhật ngày, ' : '') +
+                      (totalUpdatedRtd ? '<strong>' + totalUpdatedRtd + '</strong> RTD đổi mốc, ' : '') +
+                      (totalUpdatedAsset ? '<strong>' + totalUpdatedAsset + '</strong> Asset EN đổi' : '') +
+                    ').') :
+                    'Tất cả các mốc ngày và phase đều trùng khớp với Roadmap hiện tại.');
+              }
+              var fnEl = document.getElementById('import-review-filename');
+              if (fnEl) fnEl.textContent = 'File: ' + file.name;
+
+              var contEl = document.getElementById('import-review-table-container');
+              if (contEl) contEl.innerHTML = tableHtml;
+
+              openModal('modal-import-review');
             } catch (err) {
               console.error(err);
               showToast('⚠️ Lỗi khi đọc file Excel: ' + err.message);
@@ -3409,7 +4170,7 @@ Note:
               }
             });
 
-            var hasAsset = stageDates.loc.start !== 'N/A' ? 0 : 1;
+            var hasAsset = (proj.assetEn != null) ? (proj.assetEn ? 1 : 0) : (stageDates.loc.start !== 'N/A' ? 0 : 1);
             var row = [
               proj.studio || '',
               (proj.code ? proj.code + ' - ' : '') + proj.name,
@@ -3489,15 +4250,80 @@ Note:
           openModal('modal-settings');
         });
 
-        on('btn-source', 'click', function () {
-          var txt = document.getElementById('raw-source-textarea');
-          if (txt) txt.value = rawText;
-          openModal('modal-source');
+        on('btn-confirm-import', 'click', function () {
+          if (!pendingImportRawText) {
+            closeModals();
+            return;
+          }
+          rawText = pendingImportRawText;
+          saveRawText(rawText);
+          parsedData = parseTimeline(rawText);
+          autoComputeTimelineRange();
+          saveConfig(config);
+          render();
+          closeModals();
+          if (window.syncToFirebase) window.syncToFirebase('Import Excel Tracking');
+          showToast('✅ Đã cập nhật Roadmap thành công từ file Excel!');
+          pendingImportRawText = null;
         });
 
         on('btn-builder', 'click', function () {
           importCurrentToBuilder();
           openModal('modal-builder');
+        });
+
+        // Stage Delay Modal Controls
+        on('delay-is-active', 'change', function () {
+          var fieldsEl = document.getElementById('delay-form-fields');
+          if (fieldsEl) {
+            fieldsEl.style.display = this.checked ? 'block' : 'none';
+            if (this.checked) {
+              var daysInput = document.getElementById('delay-days-input');
+              if (daysInput && (!daysInput.value || parseFloat(daysInput.value) <= 0)) daysInput.value = 1;
+              var noteInput = document.getElementById('delay-note-input');
+              if (noteInput) noteInput.focus();
+            }
+          }
+        });
+
+        on('btn-save-stage-delay', 'click', function () {
+          if (!activeDelayTarget) return;
+          var chkDelay = document.getElementById('delay-is-active');
+          var errEl = document.getElementById('delay-validation-error');
+          if (errEl) errEl.style.display = 'none';
+
+          if (!chkDelay || !chkDelay.checked) {
+            updateRawTextTaskDelay(activeDelayTarget.pId, activeDelayTarget.tIdx, 0, '');
+            return;
+          }
+
+          var daysVal = parseFloat(document.getElementById('delay-days-input').value);
+          var noteVal = (document.getElementById('delay-note-input').value || '').trim();
+
+          if (isNaN(daysVal) || daysVal <= 0) {
+            if (errEl) {
+              errEl.textContent = '⚠️ Vui lòng nhập số ngày delay hợp lệ (> 0)';
+              errEl.style.display = 'block';
+            }
+            return;
+          }
+
+          if (!noteVal) {
+            if (errEl) {
+              errEl.textContent = '⚠️ Bắt buộc nhập Lý do / Ghi chú Delay!';
+              errEl.style.display = 'block';
+            }
+            var noteInput = document.getElementById('delay-note-input');
+            if (noteInput) noteInput.focus();
+            return;
+          }
+
+          updateRawTextTaskDelay(activeDelayTarget.pId, activeDelayTarget.tIdx, daysVal, noteVal);
+        });
+
+        on('btn-reset-stage-delay', 'click', function () {
+          if (!activeDelayTarget) return;
+          updateRawTextTaskDelay(activeDelayTarget.pId, activeDelayTarget.tIdx, 0, '');
         });
 
         // Close modal buttons
@@ -3561,26 +4387,6 @@ Note:
             if (actEl) actEl.textContent = '-';
           }
           openModal('modal-history');
-        });
-
-        // Load Sample Data in Source Modal
-        on('btn-load-sample', 'click', function () {
-          var txt = document.getElementById('raw-source-textarea');
-          if (txt) txt.value = SAMPLE_TIMELINE;
-        });
-
-        // Apply Source Raw Text
-        on('btn-apply-source', 'click', function () {
-          var txt = document.getElementById('raw-source-textarea');
-          if (txt) {
-            rawText = txt.value;
-            saveRawText(rawText);
-            parsedData = parseTimeline(rawText);
-            render();
-            closeModals();
-            showToast('Source parsed and rendered!');
-            if (window.syncToFirebase) window.syncToFirebase('Source Updated');
-          }
         });
 
         // Builder Actions
