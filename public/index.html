@@ -2176,6 +2176,25 @@ Note:
         return div.innerHTML;
       }
 
+      function encodeDelayNote(note) {
+        if (!note) return '';
+        return String(note)
+          .replace(/\r\n/g, '\n')
+          .replace(/\r/g, '\n')
+          .replace(/\\/g, '\\\\')
+          .replace(/\n/g, '\\n')
+          .trim();
+      }
+
+      function decodeDelayNote(str) {
+        if (!str) return '';
+        return String(str)
+          .replace(/<br\s*\/?>/gi, '\n')
+          .replace(/\\n/g, '\n')
+          .replace(/\\\\/g, '\\')
+          .trim();
+      }
+
       // 7. TOAST NOTIFICATION
       function showToast(msg) {
         var toast = document.getElementById('toast');
@@ -2574,9 +2593,9 @@ Note:
               if (mDelay) {
                 stageDelayDays = parseFloat(mDelay[1]);
               }
-              var mDelayNote = cleanLine.match(/\|\s*DelayNote:\s*([^|\n]+)/i);
+              var mDelayNote = cleanLine.match(/\|\s*DelayNote:\s*(.+)$/i);
               if (mDelayNote) {
-                stageDelayNote = mDelayNote[1].trim();
+                stageDelayNote = decodeDelayNote(mDelayNote[1].trim());
               }
 
               currentProject.tasks.push({
@@ -2959,8 +2978,9 @@ Note:
             '<span style="color:var(--text-muted); font-weight:600;">' + (task.duration || 1) + ' ngày làm việc</span>' +
           '</div>' +
           (hasDelay ?
-            '<div style="color:var(--danger); font-weight:600; font-size:11.5px; background:rgba(239,68,68,0.08); padding:6px 8px; border-radius:6px; border:1px solid rgba(239,68,68,0.25);">' +
-              '⚠️ Hiện tại đang Delay +' + task.delayDays + ' ngày | Lý do: ' + escapeHtml(task.delayNote || 'Chưa ghi rõ lý do') +
+            '<div style="color:var(--danger); font-size:12px; background:rgba(239,68,68,0.08); padding:8px 12px; border-radius:6px; border:1px solid rgba(239,68,68,0.25);">' +
+              '<div style="font-weight:700; margin-bottom:4px;">⚠️ Hiện tại đang Delay +' + task.delayDays + ' ngày</div>' +
+              '<div style="font-size:11.5px; color:var(--text); white-space:pre-wrap; line-height:1.5;"><strong>Lý do:</strong>\n' + escapeHtml(task.delayNote || 'Chưa ghi rõ lý do') + '</div>' +
             '</div>' :
             '<div style="color:var(--success); font-size:11.5px; font-weight:600;">✓ Đang theo đúng tiến độ kế hoạch ban đầu (Chưa có delay)</div>');
         }
@@ -3036,13 +3056,35 @@ Note:
               if (taskCounter === tIdx) {
                 var baseLine = line
                   .replace(/\s*\|\s*Delay:\s*\+?[\d\.]+\s*d?/gi, '')
-                  .replace(/\s*\|\s*DelayNote:\s*[^|\n]+/gi, '')
+                  .replace(/\s*\|\s*DelayNote:\s*.+$/gi, '')
                   .trimEnd();
 
                 if (delayDays > 0) {
-                  baseLine += ' | Delay: +' + delayDays + 'd | DelayNote: ' + (delayNote || '');
+                  baseLine += ' | Delay: +' + delayDays + 'd | DelayNote: ' + encodeDelayNote(delayNote);
                 }
                 lines[i] = baseLine;
+
+                // Clean up any legacy orphaned blocker lines that were created by previous multiline bug
+                if (delayNote) {
+                  var rawNoteLines = delayNote.split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
+                  var nextIdx = i + 1;
+                  while (nextIdx < lines.length) {
+                    var nextLineTrimmed = lines[nextIdx].trim();
+                    var nextLineClean = nextLineTrimmed.replace(/^[-\*\s]+/, '').trim();
+                    if (/^\d+[\.\)]/.test(nextLineTrimmed) || /\d{1,2}[\/\.]\d{1,2}/.test(nextLineClean)) {
+                      break;
+                    }
+                    var isOrphaned = rawNoteLines.some(function (nl) {
+                      return nl.replace(/^[-\*\s]+/, '').trim() === nextLineClean;
+                    });
+                    if (isOrphaned) {
+                      lines.splice(nextIdx, 1);
+                    } else {
+                      nextIdx++;
+                    }
+                  }
+                }
+
                 updated = true;
                 break;
               }
